@@ -10,8 +10,8 @@ Modern e-commerce remains anchored to keyword-based retrieval, a modality that o
 
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/hillarychang/dsc180b-capstone-q2.git
-    cd dsc180b-capstone-q2
+    git clone https://github.com/kurumigithub/VisionCart.git
+    cd VisionCart
     ```
 
 2. **Install the dependencies**:
