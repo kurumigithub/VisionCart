@@ -12,7 +12,7 @@ Modern e-commerce remains anchored to keyword-based retrieval, a modality that o
 
    ```bash
    git clone https://github.com/kurumigithub/VisionCart.git
-   cd VisionCart/retail-agent-ai
+   cd VisionCart
    ```
 
 2. **Install the dependencies**:
