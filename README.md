@@ -1,6 +1,6 @@
 # VisionCart
 
-** Group Members:** Kurumi Kaneko, Quinton King, Raras Pramudita, Lance Santana
+**Group Members:** Kurumi Kaneko, Quinton King, Raras Pramudita, Lance Santana
 
 ## Overview
 
@@ -21,6 +21,8 @@ Modern e-commerce remains anchored to keyword-based retrieval, a modality that o
 3. **NOT DONE YET**
 
 ### File Structure
+
+```
 retail-agent-ai/
 ├── data/                  <- Sample vision boards, product images 					
 ├── docs/                  <- Project proposal, research papers, PM specs
@@ -38,4 +40,5 @@ retail-agent-ai/
 ├── tests/                 <- Evaluation scripts (Precision@K, MRR)
 ├── requirements.txt       <- Dependency management
 └── README.md              <- Documentation & "Style Alignment Score" results
+```
 
