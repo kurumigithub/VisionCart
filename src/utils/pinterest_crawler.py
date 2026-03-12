@@ -30,9 +30,9 @@ Outputs
 
 CLI usage
 ---------
-  python -m util.pinterest_crawler "spring garden" -n 3 -m 15 --download
-  python -m util.pinterest_crawler "https://www.pinterest.com/user/board/" -m 30 -d
-  python -m util.pinterest_crawler "interior design" -n 2 --json
+  python -m pinterest_crawler "spring garden" -n 3 -m 15 --download
+  python -m pinterest_crawler "https://www.pinterest.com/user/board/" -m 30 -d
+  python -m pinterest_crawler "interior design" -n 2 --json
 """
 
 import argparse
