@@ -33,7 +33,6 @@ VisionCart/
 │   │   ├── procurement.py <- Tool-calling & API logic
 │   │   ├── ranker.py      <- clip / sigLIP?
 │   │   └── critic.py      <- Semantic "Vibe" verification
-│   │   └──output.py.      <- Final output to showcase the ranked recommendations and explain decisions 
 │   ├── tools/             <- API wrappers (Amazon, Google Shopping)
 │   ├── graph/             <- LangGraph state & workflow definition
 │   │   └── state.py       <- Shared state object
@@ -42,4 +41,13 @@ VisionCart/
 ├── tests/                 <- Evaluation scripts (Precision@K, MRR)
 ├── requirements.txt       <- Dependency management
 └── README.md              <- Documentation & "Style Alignment Score" results
+```
+
+### Agent Structure
+```
+stylist          -> convert vision boards into a "style profile"
+procurement      -> multi-step search across google/amazon apis
+critic           -> filter out images semantically
+ranker           -> mathematical rankings (cosine)
+human-readable   -> synthesize all of the outputs
 ```
