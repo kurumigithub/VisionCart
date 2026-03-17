@@ -33,6 +33,7 @@ VisionCart/
 │   │   ├── procurement.py <- Tool-calling & API logic
 │   │   ├── ranker.py      <- clip / sigLIP?
 │   │   └── critic.py      <- Semantic "Vibe" verification
+│   │   └──output.py.      <- Final output to showcase the ranked recommendations and explain decisions 
 │   ├── tools/             <- API wrappers (Amazon, Google Shopping)
 │   ├── graph/             <- LangGraph state & workflow definition
 │   │   └── state.py       <- Shared state object
