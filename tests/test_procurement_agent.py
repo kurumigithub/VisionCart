@@ -32,22 +32,22 @@ MOCK_STYLIST_OUTPUT = {
 
 
 def test_procurement_returns_trimmed_json_shape():
-    api_key = os.environ.get("SERPAPI_API_KEY")
-    if not api_key:
+    if not os.environ.get("SERPAPI_API_KEY"):
         raise RuntimeError("SERPAPI_API_KEY is required. Set it in .env or environment.")
 
     result_json = run(
         {
-            "serpapi_api_key": api_key,
             "num_products": 10,
             "stylist_output": MOCK_STYLIST_OUTPUT,
         }
     )
 
     result = json.loads(result_json)
+    print("style_profile:\n" + result.get("style_profile", ""))
+    print("\nprocurement_queries:\n" + json.dumps(result.get("procurement_queries", []), indent=2))
     assert "procurement_products" in result
     items = result["procurement_products"]
-    print("procurement_products sample:\n" + json.dumps(items, indent=2))
+    print("\nprocurement_products sample:\n" + json.dumps(items, indent=2))
     assert isinstance(items, list)
     assert len(items) > 0
 

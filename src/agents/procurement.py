@@ -94,7 +94,6 @@ def run(state: Dict[str, Any]) -> str:
     and return product candidates as a JSON string.
 
     Reads from state:
-      - serpapi_api_key (str) OR env var SERPAPI_API_KEY
       - stylist_output (dict, optional): output from real stylist agent
       - num_products (int, optional): number of items to return (default 10)
 
@@ -103,7 +102,7 @@ def run(state: Dict[str, Any]) -> str:
       - procurement_products (list): trimmed list with image_url, product_name, price, link
       - style_profile (str)
     """
-    if not state.get("serpapi_api_key") and not os.environ.get("SERPAPI_API_KEY"):
+    if not os.environ.get("SERPAPI_API_KEY"):
         try:
             from dotenv import load_dotenv  # type: ignore[import-not-found]
 
@@ -111,7 +110,7 @@ def run(state: Dict[str, Any]) -> str:
         except Exception:
             pass
 
-    api_key = state.get("serpapi_api_key") or os.environ.get("SERPAPI_API_KEY")
+    api_key = os.environ.get("SERPAPI_API_KEY")
     num_products = int(state.get("num_products") or 10)
 
     style = _resolve_style(state)
