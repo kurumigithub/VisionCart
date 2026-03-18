@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import random
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
@@ -16,10 +17,10 @@ class StylistOutput:
     """
 
     style_profile: str
-    keywords: List[str]
+    aesthetic: List[str]   # mood/vibe descriptors — NOT product names (e.g. "cottagecore", "boho")
     colors: List[str]
     materials: List[str]
-    categories: List[str]
+    products: List[str]    # purchasable item types — what to search for (e.g. "planters")
     budget_max: Optional[float] = None
     budget_currency: Optional[str] = None
 
@@ -29,27 +30,32 @@ class StylistOutput:
 
 
 def build_queries(style: StylistOutput) -> List[str]:
-    base_terms = []
-    base_terms.extend(style.categories[:2])
-    base_terms.extend(style.materials[:1])
-    base_terms.extend(style.colors[:1])
-    base_terms.extend(style.keywords[:2])
+    """
+    Returns one query per product type detected by the stylist.
 
-    base = " ".join(t for t in base_terms if t).strip()
-    base = base or style.style_profile
+    Each query = product + random material + random color + random aesthetic.
+    Number of queries == len(style.products), so API calls scale with how
+    many product types the stylist identified, not a fixed permutation count.
+    """
+    products = style.products or [""]
+    materials = style.materials or [""]
+    colors = style.colors or [""]
+    aesthetics = [a for a in style.aesthetic if a]
 
-    # Use remaining keywords as dynamic suffixes instead of hardcoded terms.
-    suffixes = [kw for kw in style.keywords[2:] if kw]
-    queries = [base] + [f"{base} {suffix}" for suffix in suffixes]
+    seen_q: set = set()
+    queries: List[str] = []
 
-    seen = set()
-    out: List[str] = []
-    for q in queries:
-        q2 = " ".join(q.split())
-        if q2 and q2 not in seen:
-            seen.add(q2)
-            out.append(q2)
-    return out
+    for product in products:
+        parts = [product, random.choice(materials), random.choice(colors)]
+        if aesthetics:
+            parts.append(random.choice(aesthetics))
+        q = " ".join(p for p in parts if p).strip()
+        q = " ".join(q.split())
+        if q and q not in seen_q:
+            seen_q.add(q)
+        queries.append(q)
+
+    return queries
 
 
 def _trim_product_json(items: List[Dict[str, Any]], *, n: int) -> List[Dict[str, Any]]:
@@ -79,10 +85,10 @@ def _resolve_style(state: Dict[str, Any]) -> StylistOutput:
         raise ValueError("stylist_output is required in state")
     return StylistOutput(
         style_profile=stylist_dict.get("style_profile", ""),
-        keywords=list(stylist_dict.get("keywords") or []),
+        aesthetic=list(stylist_dict.get("aesthetic") or []),
         colors=list(stylist_dict.get("colors") or []),
         materials=list(stylist_dict.get("materials") or []),
-        categories=list(stylist_dict.get("categories") or []),
+        products=list(stylist_dict.get("products") or []),
         budget_max=stylist_dict.get("budget_max"),
         budget_currency=stylist_dict.get("budget_currency"),
     )
@@ -94,12 +100,16 @@ def run(state: Dict[str, Any]) -> str:
     and return product candidates as a JSON string.
 
     Reads from state:
-      - stylist_output (dict, optional): output from real stylist agent
+      - stylist_output (dict): output from real or mock stylist agent
       - num_products (int, optional): number of items to return (default 10)
+
+    Query count equals the number of product types detected by the stylist.
+    Results are merged via round-robin across query buckets so every product
+    type contributes evenly to the final list.
 
     Returns a JSON string with keys:
       - procurement_queries (list)
-      - procurement_products (list): trimmed list with image_url, product_name, price, link
+      - procurement_products (list): trimmed list with image_url, product_name, price, link, tags
       - style_profile (str)
     """
     if not os.environ.get("SERPAPI_API_KEY"):
@@ -116,29 +126,42 @@ def run(state: Dict[str, Any]) -> str:
     style = _resolve_style(state)
     queries = build_queries(style)
 
-    normalized: List[Dict[str, Any]] = []
+    # Fetch results per query into separate buckets, deduplicating globally.
+    seen_products: set = set()
+    per_query_buckets: List[List[Dict[str, Any]]] = []
+
     for q in queries:
-        normalized.extend(
-            serpapi_google_shopping_search(
-                api_key=api_key,
-                query=q,
-                num=max(num_products, 10),
+        bucket: List[Dict[str, Any]] = []
+        for it in serpapi_google_shopping_search(
+            api_key=api_key,
+            query=q,
+            num=max(num_products, 10),
+        ):
+            key = (
+                (it.get("product_url") or "").strip(),
+                (it.get("product_name") or "").strip().lower(),
             )
-        )
+            if key not in seen_products:
+                seen_products.add(key)
+                bucket.append(it)
+        per_query_buckets.append(bucket)
 
-    seen = set()
-    deduped: List[Dict[str, Any]] = []
-    for it in normalized:
-        key = (
-            (it.get("product_url") or "").strip(),
-            (it.get("product_name") or "").strip().lower(),
-        )
-        if key in seen:
-            continue
-        seen.add(key)
-        deduped.append(it)
+    # Round-robin across buckets so every product type contributes evenly.
+    merged: List[Dict[str, Any]] = []
+    iterators = [iter(b) for b in per_query_buckets]
+    while len(merged) < num_products:
+        advanced = False
+        for it in iterators:
+            if len(merged) >= num_products:
+                break
+            item = next(it, None)
+            if item is not None:
+                merged.append(item)
+                advanced = True
+        if not advanced:
+            break
 
-    trimmed = _trim_product_json(deduped, n=num_products)
+    trimmed = _trim_product_json(merged, n=num_products)
     result = {
         "procurement_queries": queries,
         "procurement_products": trimmed,

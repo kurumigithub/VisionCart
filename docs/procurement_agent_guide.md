@@ -7,11 +7,11 @@
 
 The procurement agent is the second step in the VisionCart pipeline. Given the stylist agent's structured style profile, it finds real purchasable products that match the aesthetic.
 
-1. **Reads the style profile from state** — parses `stylist_output` into a typed `StylistOutput` object with categories, materials, colors, and keywords.
-2. **Builds search queries** — constructs a base query from the top 2 categories, top material, top color, and top 2 keywords. Then generates one additional query per remaining keyword as a suffix, broadening the search coverage without repeating results.
-3. **Queries SerpAPI Google Shopping** — runs each query against the Google Shopping engine and collects all returned product results.
-4. **Deduplicates results** — merges results across all queries and removes duplicates keyed on product URL + normalized product name.
-5. **Trims and shapes the output** — cuts the deduplicated list to `num_products`, strips each item down to only the fields downstream agents need (`product_name`, `image_url`, `price`, `link`, `tags`), and returns everything as a JSON string.
+1. **Reads the style profile from state** — parses `stylist_output` into a typed `StylistOutput` object with `products`, `materials`, `colors`, and `aesthetic`.
+2. **Builds one query per product type** — each query = product + random material + random color + random aesthetic descriptor. Query count equals the number of product types the stylist detected, so API calls scale naturally with the richness of the style board.
+3. **Fires all queries and collects per-query buckets** — each query fetches up to `num_products` results from SerpAPI. A global dedup set ensures no product appears in more than one bucket.
+4. **Round-robins across buckets to fill the output** — takes one result from each query bucket in turn so every product type contributes evenly to the final list, regardless of which query had the most results.
+5. **Trims and shapes the output** — cuts the merged list to `num_products`, strips each item to only the fields downstream agents need (`product_name`, `image_url`, `price`, `link`, `tags`), and returns everything as a JSON string.
 
 ---
 
@@ -21,11 +21,11 @@ The agent receives `state["stylist_output"]` — the dict produced by `stylist.p
 
 ```json
 {
-  "style_profile": "Bright spring garden vibe: airy pastels, natural textures, cottagecore-meets-modern planters, light wood accents.",
-  "keywords": ["spring garden", "planter", "outdoor decor", "patio", "string lights"],
+  "style_profile": "Bright spring garden vibe: airy pastels, natural textures, cottagecore-meets-modern sensibility, light wood accents, and a relaxed outdoor-living feeling.",
+  "products": ["planters", "outdoor lighting", "garden decor"],
+  "aesthetic": ["cottagecore", "boho outdoor", "spring patio", "whimsical garden"],
   "colors": ["sage green", "cream", "terracotta"],
   "materials": ["ceramic", "rattan", "wood"],
-  "categories": ["planters", "outdoor lighting", "garden decor"],
   "budget_max": 75.0,
   "budget_currency": "USD"
 }
@@ -33,11 +33,11 @@ The agent receives `state["stylist_output"]` — the dict produced by `stylist.p
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `style_profile` | `str` | Yes | Free-text style description |
-| `keywords` | `list[str]` | Yes | Style/product keywords |
+| `style_profile` | `str` | Yes | Full narrative prose describing the aesthetic — for downstream LLM agents (ranker, critic), never used as a search query |
+| `products` | `list[str]` | Yes | Purchasable item types to search for (e.g. `"planters"`) — drives query count (1 query per product) |
+| `aesthetic` | `list[str]` | Yes | Mood/vibe/style-movement descriptors, NOT product names (e.g. `"cottagecore"`) — randomly appended to queries |
 | `colors` | `list[str]` | Yes | Color palette |
 | `materials` | `list[str]` | Yes | Material types |
-| `categories` | `list[str]` | Yes | Product categories |
 | `budget_max` | `float` | No | Optional max budget |
 | `budget_currency` | `str` | No | Optional currency code (e.g. `"USD"`) |
 
@@ -52,16 +52,17 @@ The agent returns a JSON string with three top-level keys.
 ### `procurement_queries`
 **Type:** `list[str]`
 
-Search queries built from the stylist input and sent to SerpAPI. The first query combines categories, materials, colors, and keywords into a base string. Each additional query appends a remaining keyword as a suffix to broaden recall.
+One query per product type — each a randomized combination of product + material + color + aesthetic. Example run with the spring garden input:
 
 ```json
 "procurement_queries": [
-  "planters outdoor lighting ceramic sage green spring garden planter",
-  "planters outdoor lighting ceramic sage green spring garden planter outdoor decor",
-  "planters outdoor lighting ceramic sage green spring garden planter patio",
-  "planters outdoor lighting ceramic sage green spring garden planter string lights"
+  "planters rattan sage green cottagecore",
+  "outdoor lighting ceramic cream spring patio",
+  "garden decor wood terracotta boho outdoor"
 ]
 ```
+
+Each run produces different queries since material, color, and aesthetic are randomly sampled.
 
 ---
 
@@ -71,7 +72,7 @@ Search queries built from the stylist input and sent to SerpAPI. The first query
 The free-text style description passed through from the stylist agent for use by downstream agents (ranker, output).
 
 ```json
-"style_profile": "Bright spring garden vibe: airy pastels, natural textures, cottagecore-meets-modern planters, light wood accents."
+"style_profile": "Bright spring garden vibe: airy pastels, natural textures, cottagecore-meets-modern sensibility, light wood accents, and a relaxed outdoor-living feeling."
 ```
 
 ---
@@ -79,7 +80,7 @@ The free-text style description passed through from the stylist agent for use by
 ### `procurement_products`
 **Type:** `list[object]`
 
-Deduplicated list of product candidates from SerpAPI, trimmed to `num_products`.
+Deduplicated list of product candidates from SerpAPI, trimmed to `num_products`, merged via round-robin across query buckets.
 
 | Key | Type | Description |
 |-----|------|-------------|
@@ -148,5 +149,5 @@ python tests/test_procurement_agent.py
 
 To adjust what gets tested, edit `tests/test_procurement_agent.py` directly:
 
-- **Mock input** — modify `MOCK_STYLIST_OUTPUT` at the top of the file to change the style profile, keywords, colors, materials, or categories fed into the agent.
+- **Mock input** — modify `MOCK_STYLIST_OUTPUT` at the top of the file to change the style profile, products, aesthetic, colors, or materials fed into the agent.
 - **Number of products** — change `"num_products": 10` inside the `run(...)` call in `test_procurement_returns_trimmed_json_shape()`.

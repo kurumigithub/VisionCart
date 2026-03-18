@@ -18,14 +18,25 @@ except Exception:
 
 
 MOCK_STYLIST_OUTPUT = {
+    # style_profile: full narrative prose describing the overall aesthetic.
+    # Written for downstream LLM agents (ranker, critic) that need to understand
+    # the mood holistically. Never used directly as a search query.
     "style_profile": (
         "Bright spring garden vibe: airy pastels, natural textures, "
-        "cottagecore-meets-modern planters, light wood accents."
+        "cottagecore-meets-modern sensibility, light wood accents, and a "
+        "relaxed outdoor-living feeling."
     ),
-    "keywords": ["spring garden", "planter", "outdoor decor", "patio", "string lights"],
+
+    # products: purchasable item types — what to search for on Google Shopping.
+    # One entry per product type detected. Drives query count (1 query per product).
+    "products": ["planters", "outdoor lighting", "garden decor"],
+
+    # aesthetic: mood/vibe/style-movement descriptors — NOT product names.
+    # Randomly appended to queries to steer results toward the right aesthetic.
+    "aesthetic": ["cottagecore", "boho outdoor", "spring patio", "whimsical garden"],
+
     "colors": ["sage green", "cream", "terracotta"],
     "materials": ["ceramic", "rattan", "wood"],
-    "categories": ["planters", "outdoor lighting", "garden decor"],
     "budget_max": 75.0,
     "budget_currency": "USD",
 }
