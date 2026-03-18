@@ -1,10 +1,16 @@
 from transformers import pipeline
 
-_pipe = pipeline(
-    "text-generation",
-    model="Qwen/Qwen2.5-3B-Instruct",
-    device_map="auto",
-)
+_pipe = None
+
+def get_pipe():
+    global _pipe
+    if _pipe is None:
+        _pipe = pipeline(
+            "text-generation",
+            model="Qwen/Qwen2.5-3B-Instruct",
+            device_map="auto",
+        )
+    return _pipe
 
 SYSTEM_PROMPT = """
 You are a personal shopping assistant for a visual-first retail app.
@@ -48,7 +54,7 @@ def build_output_products(ranked_products: list) -> list:
             "price": p.get("price", "N/A"),
             "url": p.get("url", ""),
             "image_url": p.get("image_url", ""),
-            "score": p.get("score", None),
+            "score": round(p.get("score"), 3) if p.get("score") is not None else None,
             "tags": p.get("tags", []),
         })
     return results
