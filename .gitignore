@@ -1,2 +1,8 @@
 data/
-src/utils/__pycache__/*
+.env
+.env.*
+
+# Python caches / bytecode
+__pycache__/
+*.py[cod]
+*$py.class
