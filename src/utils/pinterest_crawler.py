@@ -488,9 +488,18 @@ def _to_serializable(result: List[BoardInfo]):
     return [asdict(b) for b in result]
 
 
+def _project_root() -> Path:
+    # This file lives at <root>/src/utils/pinterest_crawler.py
+    return Path(__file__).resolve().parents[2]
+
+
 def _get_download_dir(base: str = "data") -> Path:
-    """Create and return a download folder: base/YYYY-MM-DD_HH-MM-SS."""
-    folder = Path(base) / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    """Create and return a download folder: <root>/<base>/YYYY-MM-DD_HH-MM-SS."""
+    base_path = Path(base)
+    if not base_path.is_absolute():
+        base_path = _project_root() / base_path
+
+    folder = base_path / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     folder.mkdir(parents=True, exist_ok=True)
     return folder
 
