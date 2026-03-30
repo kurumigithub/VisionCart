@@ -5,9 +5,10 @@ transformers>=4.43.0
 torch>=2.0.0
 accelerate>=0.26.0
 python-dotenv>=1.0.0
-pytest
-Pillow
-torchvision
+huggingface_hub>=0.23.0
 
 bitsandbytes 
 accelerate
+pytest
+Pillow
+torchvision
