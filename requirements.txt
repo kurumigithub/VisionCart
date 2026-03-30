@@ -6,3 +6,9 @@ torch>=2.0.0
 accelerate>=0.26.0
 python-dotenv>=1.0.0
 huggingface_hub>=0.23.0
+pytest
+Pillow
+torchvision
+
+bitsandbytes 
+accelerate
