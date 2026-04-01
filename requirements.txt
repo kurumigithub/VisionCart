@@ -2,13 +2,23 @@ requests>=2.28.0
 beautifulsoup4>=4.11.0
 selenium>=4.0.0
 transformers>=4.43.0
+# torch is platform-specific — install manually FIRST, then: pip install -r requirements.txt
+#
+# Option A — conda (recommended for Anaconda envs):
+#   CUDA (NVIDIA GPU):    conda install pytorch torchvision pytorch-cuda=12.1 -c pytorch -c nvidia
+#   Apple Silicon (MPS):  conda install pytorch torchvision -c pytorch
+#   CPU only:             conda install pytorch torchvision cpuonly -c pytorch
+#
+# Option B — pip:
+#   CUDA (NVIDIA GPU):    pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+#   Apple Silicon (MPS):  pip install torch torchvision
+#   CPU only:             pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 torch>=2.0.0
+torchvision
 accelerate>=0.26.0
 python-dotenv>=1.0.0
 huggingface_hub>=0.23.0
-
-bitsandbytes 
-accelerate
+bitsandbytes
 pytest
+nbformat
 Pillow
-torchvision
