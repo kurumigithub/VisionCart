@@ -4,7 +4,7 @@ import json
 from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, List, Optional, Sequence
 
-from utils.helper import (
+from src.utils.helper import (
     combine_product_text,
     cosine_similarity,
     keyword_overlap_score,
