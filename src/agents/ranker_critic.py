@@ -320,8 +320,10 @@ def rank_and_critique(
     accepted: List[AcceptedProduct] = []
     rejected: List[RejectedProduct] = []
 
-    for product in candidate_products:
-        pid = product.get("product_id", "")
+    for idx, product in enumerate(candidate_products):
+        # Generate a stable fallback ID if procurement didn't set one,
+        # so _match_originals works correctly even without explicit product_ids.
+        pid = product.get("product_id") or f"p_{idx}"
         scoring = _compute_scores(
             product, style_profile, board_embedding,
             avoid_penalty=avoid_penalty,
@@ -380,7 +382,11 @@ def run(state: Dict[str, Any]) -> Dict[str, Any]:
         ranker_critic_output (dict): full structured output with score breakdowns.
     """
     style_profile = _ensure_dict(state.get("style_profile") or {})
-    candidate_products = _ensure_list(state.get("candidate_products") or [])
+    # Accept both key names: ranker's canonical "candidate_products" and
+    # procurement's output key "procurement_products".
+    candidate_products = _ensure_list(
+        state.get("candidate_products") or state.get("procurement_products") or []
+    )
     config = state.get("config")
 
     result = rank_and_critique(style_profile, candidate_products, config)
@@ -391,7 +397,9 @@ def run(state: Dict[str, Any]) -> Dict[str, Any]:
         ranked_for_output.append({
             "name": orig.get("title") or orig.get("product_name", ""),
             "score": ap.final_score,
-            "tags": (orig.get("attributes") or {}).get("style_tags", []),
+            # Tags live at the top level from procurement; fall back to
+            # attributes.style_tags for any future shape that nests them.
+            "tags": orig.get("tags") or (orig.get("attributes") or {}).get("style_tags", []),
             "price": orig.get("price"),
             "url": orig.get("link") or orig.get("product_url", ""),
             "image_url": orig.get("image_url", ""),

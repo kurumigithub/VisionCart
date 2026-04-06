@@ -4,6 +4,9 @@ data/
 ._DS_Store
 .tmp.driveupload/
 
+# Claude context
+docs/claude.md
+
 # Python caches / bytecode
 **/__pycache__/
 *.py[cod]
