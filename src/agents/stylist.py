@@ -85,17 +85,31 @@ def run(state: Dict[str, Any]) -> Dict[str, Any]:
     generated_ids = model.generate(**inputs, max_new_tokens=1024)
     output_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
 
+    # --- DEBUGGING PRINTS ---
+    print("\n--- RAW MODEL OUTPUT ---")
+    print(output_text)
+    print("------------------------\n")
+
+    # from gemini
     try:
-        # 1. Use regex to find the first '{' and last '}' 
-        # The re.DOTALL flag ensures it matches across multiple lines
-        json_match = re.search(r"(\{.*\})", output_text, re.DOTALL)
+        # 1. Look for JSON specifically inside markdown code blocks first
+        json_match = re.search(r"```json\s*(\{.*?\})\s*```", output_text, re.DOTALL)
         
+        # 2. Fallback: If no code blocks, find the LAST { ... } pair in the string
+        if not json_match:
+            # Using rfind to start from the end of the string
+            all_json_indices = [m for m in re.finditer(r"(\{.*\})", output_text, re.DOTALL)]
+            if all_json_indices:
+                json_match = all_json_indices[-1] # Take the last match (the assistant's response)
+
         if json_match:
             clean_json_str = json_match.group(1)
+            print(f"✅ Corrected JSON string: {clean_json_str[:60]}...")
             stylist_json = json.loads(clean_json_str)
         else:
             raise ValueError("No JSON object found in output")
-
+    # until here
+    
     except Exception as e:
         print(f"JSON Parsing Error: {e}")
         stylist_json = {
