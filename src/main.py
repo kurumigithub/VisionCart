@@ -99,7 +99,7 @@ if __name__ == "__main__":
     #     sys.exit(1)
 
     # For testing purposes, you can hardcode a Pinterest board URL here:
-    test_url = "https://www.pinterest.com/pin/1124703706959806507/"
+    test_url = "https://www.pinterest.com/aesthetics/spring-wallpapers/"
     try:
         run_vision_cart(test_url, max_images=1)
     except Exception as e:
