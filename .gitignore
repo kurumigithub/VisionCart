@@ -1,6 +1,8 @@
 data/
 .env
 .env.*
+._DS_Store
+.tmp.driveupload/
 
 # Python caches / bytecode
 **/__pycache__/
