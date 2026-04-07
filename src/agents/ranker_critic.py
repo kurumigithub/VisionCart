@@ -331,6 +331,9 @@ def rank_and_critique(
         )
         scores = scoring.breakdown
 
+        print(f"\n[ranker_critic] Product '{pid}'")
+        print(f"  img_sim={scores.image_similarity:.4f}  txt_sim={scores.text_similarity:.4f}  sem={scores.semantic_match_score:.4f}  has_img={scoring.has_image_scores}")
+
         rejection_reason = _critic_evaluate(
             product, style_profile, scores.image_similarity, scores.semantic_match_score,
             img_reject_floor=img_reject_floor, overall_reject_threshold=overall_reject,
@@ -339,6 +342,7 @@ def rank_and_critique(
             text_sim=scores.text_similarity, has_image_scores=scoring.has_image_scores,
         )
         if rejection_reason:
+            print(f"  → REJECTED: {rejection_reason}")
             rejected.append(RejectedProduct(product_id=pid, reason=rejection_reason))
             continue
 
@@ -348,6 +352,7 @@ def rank_and_critique(
             non_img = w_txt + w_sem
             final = (w_txt / non_img) * scores.text_similarity + (w_sem / non_img) * scores.semantic_match_score if non_img > 0 else 0.0
         final = round(final, 4)
+        print(f"  → ACCEPTED: final_score={final:.4f}")
 
         accepted.append(AcceptedProduct(
             product_id=pid,
@@ -359,6 +364,12 @@ def rank_and_critique(
     accepted.sort(key=lambda p: p.final_score, reverse=True)
     for i, p in enumerate(accepted, 1):
         p.rank = i
+
+    print(f"\n[ranker_critic] Results: {len(accepted)} accepted, {len(rejected)} rejected")
+    for p in accepted:
+        print(f"  Rank {p.rank}: {p.product_id}  score={p.final_score:.4f}  reason={p.reason}")
+    for p in rejected:
+        print(f"  REJECTED: {p.product_id}  reason={p.reason}")
 
     return RankerCriticOutput(
         board_id=board_id,
@@ -389,6 +400,11 @@ def run(state: Dict[str, Any]) -> Dict[str, Any]:
     )
     config = state.get("config")
 
+    print(f"\n[ranker_critic] ── run() ──────────────────────────────")
+    print(f"[ranker_critic] Candidates received: {len(candidate_products)}")
+    print(f"[ranker_critic] Style profile keys: {list(style_profile.keys())}")
+    print(f"[ranker_critic] Board embedding present: {bool(style_profile.get('board_embedding'))}")
+
     result = rank_and_critique(style_profile, candidate_products, config)
     output = result.to_dict()
 
@@ -404,6 +420,12 @@ def run(state: Dict[str, Any]) -> Dict[str, Any]:
             "url": orig.get("link") or orig.get("product_url", ""),
             "image_url": orig.get("image_url", ""),
         })
+
+    print(f"\n[ranker_critic] ranked_products going to output: {len(ranked_for_output)}")
+    for p in ranked_for_output:
+        print(f"  {p['name']}  score={p['score']}  tags={p['tags']}")
+    critic_feedback = state.get("critic_feedback")
+    print(f"[ranker_critic] critic_feedback in state: {critic_feedback!r}  ← populate this for procurement retry loop")
 
     return {
         "ranked_products": ranked_for_output,

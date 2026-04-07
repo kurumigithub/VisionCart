@@ -78,6 +78,11 @@ def run(state: dict) -> dict:
     ranked_products = state.get("ranked_products", [])
     critic_notes = state.get("critic_notes", "")
 
+    print(f"\n[output] ── run() ────────────────────────────────────")
+    print(f"[output] ranked_products count: {len(ranked_products)}")
+    print(f"[output] style_profile length: {len(style_profile)} chars")
+    print(f"[output] critic_notes: {critic_notes!r}")
+
     if not style_profile:
         return {
             "output_text": (
@@ -111,6 +116,10 @@ Ranked products {count_note}:
 
 Please generate the user-facing summary."""
 
+    print(f"\n[output] ── LLM prompt ─────────────────────────────")
+    print(user_message)
+    print(f"[output] ────────────────────────────────────────────")
+
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": user_message},
@@ -119,5 +128,15 @@ Please generate the user-facing summary."""
     pipe = get_pipe()
     result = pipe(messages, max_new_tokens=1024)
     output_text = result[0]["generated_text"][-1]["content"]
+
+    print(f"\n[output] ── LLM response ────────────────────────────")
+    print(output_text)
+    print(f"[output] ─────────────────────────────────────────────")
+
     output_products = build_output_products(ranked_products)
+
+    print(f"\n[output] output_products ({len(output_products)} items):")
+    for p in output_products:
+        print(f"  {p['name']}  score={p['score']}  price={p['price']}  tags={p['tags']}")
+
     return {"output_text": output_text, "output_products": output_products}
