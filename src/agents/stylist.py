@@ -50,16 +50,14 @@ def run(state: Dict[str, Any]) -> Dict[str, Any]:
             print(f"Error loading image {path}: {e}")
 
     # prompt: Enforcing the exact schema the Procurement Agent expects
-    prompt = """Analyze these images and create a 'Style Persona'. 
+    prompt = """Analyze these images and create a 'Style Persona'.
     Return ONLY a JSON object with these exact keys:
     {
       "style_profile": "A narrative prose describing the overall vibe.",
       "products": ["List of specific item types to search for (e.g. 'planters')"],
       "aesthetic": ["Mood descriptors (e.g. 'cottagecore', 'boho')"],
       "colors": ["3-5 specific colors found in the images"],
-      "materials": ["3-5 materials (e.g. 'rattan', 'oak')"],
-      "budget_max": 100.0,
-      "budget_currency": "USD"
+      "materials": ["3-5 materials (e.g. 'rattan', 'oak')"]
     }"""
 
     # Prepare Multimodal Input
