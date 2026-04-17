@@ -17,20 +17,26 @@
       "blazer",
       "wool",
       "herringbone",
+      "brown",
+      "light brown",
       "women's",
       "dark academia",
       "relaxed"
     ],
     "product_terms": [
       "blazer",
-      "wool",
-      "herringbone"
+      "jacket",
+      "outerwear",
+      "herringbone",
+      "wool"
     ],
     "style_terms": [
       "dark academia",
       "vintage",
+      "scholarly",
+      "literary",
       "preppy",
-      "scholarly"
+      "old money"
     ]
   },
   {
@@ -53,18 +59,24 @@
       "herringbone",
       "women's",
       "dark academia",
+      "dark brown",
+      "brown",
       "tweed"
     ],
     "product_terms": [
       "blazer",
-      "wool",
-      "herringbone"
+      "jacket",
+      "outerwear",
+      "herringbone",
+      "wool"
     ],
     "style_terms": [
       "dark academia",
       "vintage",
+      "scholarly",
+      "literary",
       "preppy",
-      "scholarly"
+      "old money"
     ]
   },
   {
@@ -86,18 +98,24 @@
       "wool",
       "herringbone",
       "women's",
+      "gray",
       "dark academia"
     ],
     "product_terms": [
       "blazer",
-      "wool",
-      "herringbone"
+      "jacket",
+      "outerwear",
+      "gold buttons",
+      "herringbone",
+      "wool"
     ],
     "style_terms": [
       "dark academia",
       "vintage",
+      "scholarly",
+      "literary",
       "preppy",
-      "scholarly"
+      "old money"
     ]
   },
   {
@@ -126,14 +144,18 @@
     ],
     "product_terms": [
       "blazer",
-      "wool",
-      "herringbone"
+      "jacket",
+      "outerwear",
+      "herringbone",
+      "wool"
     ],
     "style_terms": [
       "dark academia",
       "vintage",
+      "scholarly",
+      "literary",
       "preppy",
-      "scholarly"
+      "old money"
     ]
   },
   {
@@ -162,13 +184,18 @@
     "product_terms": [
       "bag",
       "satchel",
+      "handbag",
+      "handles",
+      "shoulder bag",
       "leather"
     ],
     "style_terms": [
       "dark academia",
       "vintage",
+      "scholarly",
+      "literary",
       "preppy",
-      "scholarly"
+      "old money"
     ]
   },
   {
@@ -197,13 +224,18 @@
     "product_terms": [
       "bag",
       "satchel",
-      "leather"
+      "handbag",
+      "shoulder bag",
+      "leather",
+      "luxury"
     ],
     "style_terms": [
       "dark academia",
       "vintage",
+      "scholarly",
+      "literary",
       "preppy",
-      "scholarly"
+      "old money"
     ]
   },
   {
@@ -232,13 +264,18 @@
     "product_terms": [
       "bag",
       "satchel",
+      "handbag",
+      "shoulder bag",
       "leather"
     ],
     "style_terms": [
       "dark academia",
       "vintage",
+      "scholarly",
+      "literary",
       "preppy",
-      "scholarly"
+      "old money",
+      "simple"
     ]
   },
   {
@@ -261,19 +298,24 @@
       "satchel",
       "leather",
       "brown",
+      "tan",
       "vintage",
       "dark academia"
     ],
     "product_terms": [
       "bag",
       "satchel",
+      "handbag",
+      "shoulder bag",
       "leather"
     ],
     "style_terms": [
       "dark academia",
       "vintage",
+      "scholarly",
+      "literary",
       "preppy",
-      "scholarly"
+      "old money"
     ]
   },
   {
@@ -300,14 +342,18 @@
     ],
     "product_terms": [
       "trousers",
+      "pants",
+      "bottoms",
       "tweed",
-      "high waist"
+      "wide leg"
     ],
     "style_terms": [
       "dark academia",
       "vintage",
+      "scholarly",
+      "literary",
       "preppy",
-      "scholarly"
+      "old money"
     ]
   },
   {
@@ -333,14 +379,18 @@
     ],
     "product_terms": [
       "trousers",
+      "pants",
+      "bottoms",
       "tweed",
-      "high waist"
+      "wide leg"
     ],
     "style_terms": [
       "dark academia",
       "vintage",
+      "scholarly",
+      "literary",
       "preppy",
-      "scholarly"
+      "old money"
     ]
   },
   {
@@ -367,14 +417,18 @@
     ],
     "product_terms": [
       "trousers",
+      "pants",
+      "bottoms",
       "tweed",
-      "high waist"
+      "wide leg"
     ],
     "style_terms": [
       "dark academia",
       "vintage",
+      "scholarly",
+      "literary",
       "preppy",
-      "scholarly"
+      "old money"
     ]
   },
   {
@@ -400,14 +454,18 @@
     ],
     "product_terms": [
       "trousers",
+      "pants",
+      "bottoms",
       "tweed",
-      "high waist"
+      "wide leg"
     ],
     "style_terms": [
       "dark academia",
       "vintage",
+      "scholarly",
+      "literary",
       "preppy",
-      "scholarly"
+      "old money"
     ]
   },
   {
@@ -433,14 +491,18 @@
     ],
     "product_terms": [
       "sweater",
+      "knitwear",
+      "turtleneck",
       "cashmere",
-      "turtleneck"
+      "top"
     ],
     "style_terms": [
       "quiet luxury",
       "minimal",
       "refined",
-      "classic"
+      "classic",
+      "elevated",
+      "understated"
     ]
   },
   {
@@ -467,14 +529,18 @@
     ],
     "product_terms": [
       "sweater",
+      "knitwear",
+      "turtleneck",
       "cashmere",
-      "turtleneck"
+      "top"
     ],
     "style_terms": [
       "quiet luxury",
       "minimal",
       "refined",
-      "classic"
+      "classic",
+      "elevated",
+      "understated"
     ]
   },
   {
@@ -500,14 +566,18 @@
     "product_type": "sweater",
     "product_terms": [
       "sweater",
+      "knitwear",
+      "turtleneck",
       "cashmere",
-      "turtleneck"
+      "top"
     ],
     "style_terms": [
       "quiet luxury",
       "minimal",
       "refined",
-      "classic"
+      "classic",
+      "elevated",
+      "understated"
     ]
   },
   {
@@ -534,14 +604,18 @@
     "product_type": "sweater",
     "product_terms": [
       "sweater",
+      "knitwear",
+      "turtleneck",
       "cashmere",
-      "turtleneck"
+      "top"
     ],
     "style_terms": [
       "quiet luxury",
       "minimal",
       "refined",
-      "classic"
+      "classic",
+      "elevated",
+      "understated"
     ]
   },
   {
@@ -568,6 +642,8 @@
     "product_type": "trousers",
     "product_terms": [
       "trousers",
+      "pants",
+      "bottoms",
       "tailored",
       "straight leg"
     ],
@@ -575,7 +651,9 @@
       "quiet luxury",
       "minimal",
       "refined",
-      "classic"
+      "classic",
+      "elevated",
+      "understated"
     ]
   },
   {
@@ -602,6 +680,8 @@
     "product_type": "trousers",
     "product_terms": [
       "trousers",
+      "pants",
+      "bottoms",
       "tailored",
       "straight leg"
     ],
@@ -609,7 +689,9 @@
       "quiet luxury",
       "minimal",
       "refined",
-      "classic"
+      "classic",
+      "elevated",
+      "understated"
     ]
   },
   {
@@ -637,6 +719,8 @@
     "product_type": "trousers",
     "product_terms": [
       "trousers",
+      "pants",
+      "bottoms",
       "tailored",
       "straight leg"
     ],
@@ -644,7 +728,9 @@
       "quiet luxury",
       "minimal",
       "refined",
-      "classic"
+      "classic",
+      "elevated",
+      "understated"
     ]
   },
   {
@@ -671,6 +757,8 @@
     "product_type": "trousers",
     "product_terms": [
       "trousers",
+      "pants",
+      "bottoms",
       "tailored",
       "straight leg"
     ],
@@ -678,7 +766,9 @@
       "quiet luxury",
       "minimal",
       "refined",
-      "classic"
+      "classic",
+      "elevated",
+      "understated"
     ]
   },
   {
@@ -703,14 +793,18 @@
     "product_type": "loafer",
     "product_terms": [
       "loafer",
-      "leather",
-      "slip-on"
+      "shoes",
+      "footwear",
+      "slip-on",
+      "leather"
     ],
     "style_terms": [
       "quiet luxury",
       "minimal",
       "refined",
-      "classic"
+      "classic",
+      "elevated",
+      "understated"
     ]
   },
   {
@@ -736,14 +830,18 @@
     "product_type": "loafer",
     "product_terms": [
       "loafer",
-      "leather",
-      "slip-on"
+      "shoes",
+      "footwear",
+      "slip-on",
+      "leather"
     ],
     "style_terms": [
       "quiet luxury",
       "minimal",
       "refined",
-      "classic"
+      "classic",
+      "elevated",
+      "understated"
     ]
   },
   {
@@ -768,14 +866,18 @@
     "product_type": "loafer",
     "product_terms": [
       "loafer",
-      "leather",
-      "slip-on"
+      "shoes",
+      "footwear",
+      "slip-on",
+      "leather"
     ],
     "style_terms": [
       "quiet luxury",
       "minimal",
       "refined",
-      "classic"
+      "classic",
+      "elevated",
+      "understated"
     ]
   },
   {
@@ -800,14 +902,18 @@
     "product_type": "loafer",
     "product_terms": [
       "loafer",
-      "leather",
-      "slip-on"
+      "shoes",
+      "footwear",
+      "slip-on",
+      "leather"
     ],
     "style_terms": [
       "quiet luxury",
       "minimal",
       "refined",
-      "classic"
+      "classic",
+      "elevated",
+      "understated"
     ]
   },
   {
@@ -836,15 +942,18 @@
     "product_type": "dress",
     "product_terms": [
       "dress",
-      "midi",
+      "midi dress",
       "smocked",
-      "puff sleeve"
+      "puff sleeve",
+      "floral"
     ],
     "style_terms": [
       "cottagecore",
       "romantic",
-      "rustic",
-      "pastoral"
+      "pastoral",
+      "whimsical",
+      "folk",
+      "rustic"
     ]
   },
   {
@@ -873,15 +982,18 @@
     "product_type": "dress",
     "product_terms": [
       "dress",
-      "midi",
+      "midi dress",
       "smocked",
-      "puff sleeve"
+      "puff sleeve",
+      "floral"
     ],
     "style_terms": [
       "cottagecore",
       "romantic",
-      "rustic",
-      "pastoral"
+      "pastoral",
+      "whimsical",
+      "folk",
+      "rustic"
     ]
   },
   {
@@ -910,15 +1022,18 @@
     "product_type": "dress",
     "product_terms": [
       "dress",
-      "midi",
+      "midi dress",
       "smocked",
-      "puff sleeve"
+      "puff sleeve",
+      "floral"
     ],
     "style_terms": [
       "cottagecore",
       "romantic",
-      "rustic",
-      "pastoral"
+      "pastoral",
+      "whimsical",
+      "folk",
+      "rustic"
     ]
   },
   {
@@ -948,15 +1063,18 @@
     "product_type": "dress",
     "product_terms": [
       "dress",
-      "midi",
+      "midi dress",
       "smocked",
-      "puff sleeve"
+      "puff sleeve",
+      "floral"
     ],
     "style_terms": [
       "cottagecore",
       "romantic",
-      "rustic",
-      "pastoral"
+      "pastoral",
+      "whimsical",
+      "folk",
+      "rustic"
     ]
   },
   {
@@ -982,14 +1100,18 @@
     "product_type": "tote",
     "product_terms": [
       "tote",
-      "wicker",
+      "bag",
+      "handbag",
+      "basket",
       "woven"
     ],
     "style_terms": [
       "cottagecore",
       "romantic",
-      "rustic",
-      "pastoral"
+      "pastoral",
+      "whimsical",
+      "folk",
+      "rustic"
     ]
   },
   {
@@ -1015,14 +1137,18 @@
     "product_type": "tote",
     "product_terms": [
       "tote",
-      "wicker",
+      "bag",
+      "handbag",
+      "basket",
       "woven"
     ],
     "style_terms": [
       "cottagecore",
       "romantic",
-      "rustic",
-      "pastoral"
+      "pastoral",
+      "whimsical",
+      "folk",
+      "rustic"
     ]
   },
   {
@@ -1048,14 +1174,18 @@
     "product_type": "tote",
     "product_terms": [
       "tote",
-      "wicker",
+      "bag",
+      "handbag",
+      "basket",
       "woven"
     ],
     "style_terms": [
       "cottagecore",
       "romantic",
-      "rustic",
-      "pastoral"
+      "pastoral",
+      "whimsical",
+      "folk",
+      "rustic"
     ]
   },
   {
@@ -1081,14 +1211,18 @@
     "product_type": "tote",
     "product_terms": [
       "tote",
-      "wicker",
+      "bag",
+      "handbag",
+      "basket",
       "woven"
     ],
     "style_terms": [
       "cottagecore",
       "romantic",
-      "rustic",
-      "pastoral"
+      "pastoral",
+      "whimsical",
+      "folk",
+      "rustic"
     ]
   },
   {
@@ -1115,14 +1249,18 @@
     "product_type": "cardigan",
     "product_terms": [
       "cardigan",
+      "knitwear",
+      "top",
       "embroidered",
-      "knitwear"
+      "floral"
     ],
     "style_terms": [
       "cottagecore",
       "romantic",
-      "rustic",
-      "pastoral"
+      "pastoral",
+      "whimsical",
+      "folk",
+      "rustic"
     ]
   },
   {
@@ -1147,14 +1285,18 @@
     "product_type": "cardigan",
     "product_terms": [
       "cardigan",
+      "knitwear",
+      "top",
       "embroidered",
-      "knitwear"
+      "floral"
     ],
     "style_terms": [
       "cottagecore",
       "romantic",
-      "rustic",
-      "pastoral"
+      "pastoral",
+      "whimsical",
+      "folk",
+      "rustic"
     ]
   },
   {
@@ -1179,14 +1321,18 @@
     "product_type": "cardigan",
     "product_terms": [
       "cardigan",
+      "knitwear",
+      "top",
       "embroidered",
-      "knitwear"
+      "floral"
     ],
     "style_terms": [
       "cottagecore",
       "romantic",
-      "rustic",
-      "pastoral"
+      "pastoral",
+      "whimsical",
+      "folk",
+      "rustic"
     ]
   },
   {
@@ -1211,14 +1357,18 @@
     "product_type": "cardigan",
     "product_terms": [
       "cardigan",
+      "knitwear",
+      "top",
       "embroidered",
-      "knitwear"
+      "floral"
     ],
     "style_terms": [
       "cottagecore",
       "romantic",
-      "rustic",
-      "pastoral"
+      "pastoral",
+      "whimsical",
+      "folk",
+      "rustic"
     ]
   },
   {
@@ -1246,15 +1396,18 @@
     "product_type": "top",
     "product_terms": [
       "top",
+      "t-shirt",
       "baby tee",
-      "graphic",
+      "graphic tee",
       "rhinestone"
     ],
     "style_terms": [
       "y2k",
       "streetwear",
       "retro",
-      "early 2000s"
+      "early 2000s",
+      "nostalgic",
+      "bold"
     ]
   },
   {
@@ -1282,15 +1435,18 @@
     "product_type": "top",
     "product_terms": [
       "top",
+      "t-shirt",
       "baby tee",
-      "graphic",
+      "graphic tee",
       "rhinestone"
     ],
     "style_terms": [
       "y2k",
       "streetwear",
       "retro",
-      "early 2000s"
+      "early 2000s",
+      "nostalgic",
+      "bold"
     ]
   },
   {
@@ -1318,15 +1474,18 @@
     "product_type": "top",
     "product_terms": [
       "top",
+      "t-shirt",
       "baby tee",
-      "graphic",
+      "graphic tee",
       "rhinestone"
     ],
     "style_terms": [
       "y2k",
       "streetwear",
       "retro",
-      "early 2000s"
+      "early 2000s",
+      "nostalgic",
+      "bold"
     ]
   },
   {
@@ -1354,15 +1513,18 @@
     "product_type": "top",
     "product_terms": [
       "top",
+      "t-shirt",
       "baby tee",
-      "graphic",
+      "graphic tee",
       "rhinestone"
     ],
     "style_terms": [
       "y2k",
       "streetwear",
       "retro",
-      "early 2000s"
+      "early 2000s",
+      "nostalgic",
+      "bold"
     ]
   },
   {
@@ -1389,14 +1551,18 @@
     "product_type": "pants",
     "product_terms": [
       "pants",
-      "cargo",
-      "low rise"
+      "cargo pants",
+      "bottoms",
+      "low rise",
+      "utility"
     ],
     "style_terms": [
       "y2k",
       "streetwear",
       "retro",
-      "early 2000s"
+      "early 2000s",
+      "nostalgic",
+      "bold"
     ]
   },
   {
@@ -1423,14 +1589,18 @@
     "product_type": "pants",
     "product_terms": [
       "pants",
-      "cargo",
-      "low rise"
+      "cargo pants",
+      "bottoms",
+      "low rise",
+      "utility"
     ],
     "style_terms": [
       "y2k",
       "streetwear",
       "retro",
-      "early 2000s"
+      "early 2000s",
+      "nostalgic",
+      "bold"
     ]
   },
   {
@@ -1458,14 +1628,18 @@
     "product_type": "pants",
     "product_terms": [
       "pants",
-      "cargo",
-      "low rise"
+      "cargo pants",
+      "bottoms",
+      "low rise",
+      "utility"
     ],
     "style_terms": [
       "y2k",
       "streetwear",
       "retro",
-      "early 2000s"
+      "early 2000s",
+      "nostalgic",
+      "bold"
     ]
   },
   {
@@ -1492,14 +1666,18 @@
     "product_type": "pants",
     "product_terms": [
       "pants",
-      "cargo",
-      "low rise"
+      "cargo pants",
+      "bottoms",
+      "low rise",
+      "utility"
     ],
     "style_terms": [
       "y2k",
       "streetwear",
       "retro",
-      "early 2000s"
+      "early 2000s",
+      "nostalgic",
+      "bold"
     ]
   },
   {
@@ -1524,14 +1702,18 @@
     "product_type": "sneaker",
     "product_terms": [
       "sneaker",
+      "shoes",
+      "footwear",
       "platform",
-      "chunky"
+      "chunky sole"
     ],
     "style_terms": [
       "y2k",
       "streetwear",
       "retro",
-      "early 2000s"
+      "early 2000s",
+      "nostalgic",
+      "bold"
     ]
   },
   {
@@ -1556,14 +1738,18 @@
     "product_type": "sneaker",
     "product_terms": [
       "sneaker",
+      "shoes",
+      "footwear",
       "platform",
-      "chunky"
+      "chunky sole"
     ],
     "style_terms": [
       "y2k",
       "streetwear",
       "retro",
-      "early 2000s"
+      "early 2000s",
+      "nostalgic",
+      "bold"
     ]
   },
   {
@@ -1588,14 +1774,18 @@
     "product_type": "sneaker",
     "product_terms": [
       "sneaker",
+      "shoes",
+      "footwear",
       "platform",
-      "chunky"
+      "chunky sole"
     ],
     "style_terms": [
       "y2k",
       "streetwear",
       "retro",
-      "early 2000s"
+      "early 2000s",
+      "nostalgic",
+      "bold"
     ]
   },
   {
@@ -1620,14 +1810,18 @@
     "product_type": "sneaker",
     "product_terms": [
       "sneaker",
+      "shoes",
+      "footwear",
       "platform",
-      "chunky"
+      "chunky sole"
     ],
     "style_terms": [
       "y2k",
       "streetwear",
       "retro",
-      "early 2000s"
+      "early 2000s",
+      "nostalgic",
+      "bold"
     ]
   },
   {
@@ -1653,15 +1847,18 @@
     "product_type": "bag",
     "product_terms": [
       "bag",
-      "crossbody",
-      "suede",
-      "fringe"
+      "crossbody bag",
+      "handbag",
+      "fringe",
+      "suede"
     ],
     "style_terms": [
       "vintage bohemian",
       "boho",
-      "artisanal",
-      "eclectic"
+      "eclectic",
+      "free-spirited",
+      "folk",
+      "artisanal"
     ]
   },
   {
@@ -1687,15 +1884,18 @@
     "product_type": "bag",
     "product_terms": [
       "bag",
-      "crossbody",
-      "suede",
-      "fringe"
+      "crossbody bag",
+      "handbag",
+      "fringe",
+      "suede"
     ],
     "style_terms": [
       "vintage bohemian",
       "boho",
-      "artisanal",
-      "eclectic"
+      "eclectic",
+      "free-spirited",
+      "folk",
+      "artisanal"
     ]
   },
   {
@@ -1721,15 +1921,18 @@
     "product_type": "bag",
     "product_terms": [
       "bag",
-      "crossbody",
-      "suede",
-      "fringe"
+      "crossbody bag",
+      "handbag",
+      "fringe",
+      "suede"
     ],
     "style_terms": [
       "vintage bohemian",
       "boho",
-      "artisanal",
-      "eclectic"
+      "eclectic",
+      "free-spirited",
+      "folk",
+      "artisanal"
     ]
   },
   {
@@ -1756,15 +1959,18 @@
     "product_type": "bag",
     "product_terms": [
       "bag",
-      "crossbody",
-      "suede",
-      "fringe"
+      "crossbody bag",
+      "handbag",
+      "fringe",
+      "suede"
     ],
     "style_terms": [
       "vintage bohemian",
       "boho",
-      "artisanal",
-      "eclectic"
+      "eclectic",
+      "free-spirited",
+      "folk",
+      "artisanal"
     ]
   },
   {
@@ -1790,14 +1996,17 @@
     "product_type": "vest",
     "product_terms": [
       "vest",
+      "outerwear",
       "crochet",
-      "open knit"
+      "layering piece"
     ],
     "style_terms": [
       "vintage bohemian",
       "boho",
-      "artisanal",
-      "eclectic"
+      "eclectic",
+      "free-spirited",
+      "folk",
+      "artisanal"
     ]
   },
   {
@@ -1823,14 +2032,17 @@
     "product_type": "vest",
     "product_terms": [
       "vest",
+      "outerwear",
       "crochet",
-      "open knit"
+      "layering piece"
     ],
     "style_terms": [
       "vintage bohemian",
       "boho",
-      "artisanal",
-      "eclectic"
+      "eclectic",
+      "free-spirited",
+      "folk",
+      "artisanal"
     ]
   },
   {
@@ -1856,14 +2068,17 @@
     "product_type": "vest",
     "product_terms": [
       "vest",
+      "outerwear",
       "crochet",
-      "open knit"
+      "layering piece"
     ],
     "style_terms": [
       "vintage bohemian",
       "boho",
-      "artisanal",
-      "eclectic"
+      "eclectic",
+      "free-spirited",
+      "folk",
+      "artisanal"
     ]
   },
   {
@@ -1889,14 +2104,17 @@
     "product_type": "vest",
     "product_terms": [
       "vest",
+      "outerwear",
       "crochet",
-      "open knit"
+      "layering piece"
     ],
     "style_terms": [
       "vintage bohemian",
       "boho",
-      "artisanal",
-      "eclectic"
+      "eclectic",
+      "free-spirited",
+      "folk",
+      "artisanal"
     ]
   },
   {
@@ -1923,14 +2141,18 @@
     "product_type": "pants",
     "product_terms": [
       "pants",
-      "wide leg",
-      "embroidered"
+      "wide leg pants",
+      "bottoms",
+      "embroidered",
+      "palazzo"
     ],
     "style_terms": [
       "vintage bohemian",
       "boho",
-      "artisanal",
-      "eclectic"
+      "eclectic",
+      "free-spirited",
+      "folk",
+      "artisanal"
     ]
   },
   {
@@ -1957,14 +2179,18 @@
     "product_type": "pants",
     "product_terms": [
       "pants",
-      "wide leg",
-      "embroidered"
+      "wide leg pants",
+      "bottoms",
+      "embroidered",
+      "palazzo"
     ],
     "style_terms": [
       "vintage bohemian",
       "boho",
-      "artisanal",
-      "eclectic"
+      "eclectic",
+      "free-spirited",
+      "folk",
+      "artisanal"
     ]
   },
   {
@@ -1991,14 +2217,18 @@
     "product_type": "pants",
     "product_terms": [
       "pants",
-      "wide leg",
-      "embroidered"
+      "wide leg pants",
+      "bottoms",
+      "embroidered",
+      "palazzo"
     ],
     "style_terms": [
       "vintage bohemian",
       "boho",
-      "artisanal",
-      "eclectic"
+      "eclectic",
+      "free-spirited",
+      "folk",
+      "artisanal"
     ]
   },
   {
@@ -2025,14 +2255,18 @@
     "product_type": "pants",
     "product_terms": [
       "pants",
-      "wide leg",
-      "embroidered"
+      "wide leg pants",
+      "bottoms",
+      "embroidered",
+      "palazzo"
     ],
     "style_terms": [
       "vintage bohemian",
       "boho",
-      "artisanal",
-      "eclectic"
+      "eclectic",
+      "free-spirited",
+      "folk",
+      "artisanal"
     ]
   },
   {
@@ -2058,14 +2292,17 @@
     "product_type": "credenza",
     "product_terms": [
       "credenza",
-      "walnut",
-      "tapered legs"
+      "sideboard",
+      "furniture",
+      "storage",
+      "cabinet"
     ],
     "style_terms": [
       "mid century modern",
-      "retro",
+      "retro modern",
       "modernist",
-      "scandinavian"
+      "scandinavian",
+      "vintage"
     ]
   },
   {
@@ -2091,14 +2328,17 @@
     "product_type": "credenza",
     "product_terms": [
       "credenza",
-      "walnut",
-      "tapered legs"
+      "sideboard",
+      "furniture",
+      "storage",
+      "cabinet"
     ],
     "style_terms": [
       "mid century modern",
-      "retro",
+      "retro modern",
       "modernist",
-      "scandinavian"
+      "scandinavian",
+      "vintage"
     ]
   },
   {
@@ -2124,14 +2364,17 @@
     "product_type": "credenza",
     "product_terms": [
       "credenza",
-      "walnut",
-      "tapered legs"
+      "sideboard",
+      "furniture",
+      "storage",
+      "cabinet"
     ],
     "style_terms": [
       "mid century modern",
-      "retro",
+      "retro modern",
       "modernist",
-      "scandinavian"
+      "scandinavian",
+      "vintage"
     ]
   },
   {
@@ -2157,14 +2400,17 @@
     "product_type": "credenza",
     "product_terms": [
       "credenza",
-      "walnut",
-      "tapered legs"
+      "sideboard",
+      "furniture",
+      "storage",
+      "cabinet"
     ],
     "style_terms": [
       "mid century modern",
-      "retro",
+      "retro modern",
       "modernist",
-      "scandinavian"
+      "scandinavian",
+      "vintage"
     ]
   },
   {
@@ -2193,14 +2439,16 @@
     "product_terms": [
       "lamp",
       "floor lamp",
-      "arc",
+      "lighting",
+      "arc lamp",
       "brass"
     ],
     "style_terms": [
       "mid century modern",
-      "retro",
+      "retro modern",
       "modernist",
-      "scandinavian"
+      "scandinavian",
+      "vintage"
     ]
   },
   {
@@ -2227,14 +2475,16 @@
     "product_terms": [
       "lamp",
       "floor lamp",
-      "arc",
+      "lighting",
+      "arc lamp",
       "brass"
     ],
     "style_terms": [
       "mid century modern",
-      "retro",
+      "retro modern",
       "modernist",
-      "scandinavian"
+      "scandinavian",
+      "vintage"
     ]
   },
   {
@@ -2261,14 +2511,16 @@
     "product_terms": [
       "lamp",
       "floor lamp",
-      "arc",
+      "lighting",
+      "arc lamp",
       "brass"
     ],
     "style_terms": [
       "mid century modern",
-      "retro",
+      "retro modern",
       "modernist",
-      "scandinavian"
+      "scandinavian",
+      "vintage"
     ]
   },
   {
@@ -2295,14 +2547,16 @@
     "product_terms": [
       "lamp",
       "floor lamp",
-      "arc",
+      "lighting",
+      "arc lamp",
       "brass"
     ],
     "style_terms": [
       "mid century modern",
-      "retro",
+      "retro modern",
       "modernist",
-      "scandinavian"
+      "scandinavian",
+      "vintage"
     ]
   },
   {
@@ -2331,13 +2585,16 @@
     "product_terms": [
       "chair",
       "lounge chair",
-      "upholstered"
+      "seating",
+      "furniture",
+      "ottoman"
     ],
     "style_terms": [
       "mid century modern",
-      "retro",
+      "retro modern",
       "modernist",
-      "scandinavian"
+      "scandinavian",
+      "vintage"
     ]
   },
   {
@@ -2364,13 +2621,16 @@
     "product_terms": [
       "chair",
       "lounge chair",
-      "upholstered"
+      "seating",
+      "furniture",
+      "ottoman"
     ],
     "style_terms": [
       "mid century modern",
-      "retro",
+      "retro modern",
       "modernist",
-      "scandinavian"
+      "scandinavian",
+      "vintage"
     ]
   },
   {
@@ -2397,13 +2657,16 @@
     "product_terms": [
       "chair",
       "lounge chair",
-      "upholstered"
+      "seating",
+      "furniture",
+      "ottoman"
     ],
     "style_terms": [
       "mid century modern",
-      "retro",
+      "retro modern",
       "modernist",
-      "scandinavian"
+      "scandinavian",
+      "vintage"
     ]
   },
   {
@@ -2431,13 +2694,16 @@
     "product_terms": [
       "chair",
       "lounge chair",
-      "upholstered"
+      "seating",
+      "furniture",
+      "ottoman"
     ],
     "style_terms": [
       "mid century modern",
-      "retro",
+      "retro modern",
       "modernist",
-      "scandinavian"
+      "scandinavian",
+      "vintage"
     ]
   },
   {
@@ -2465,13 +2731,17 @@
     "product_type": "bed frame",
     "product_terms": [
       "bed frame",
-      "platform",
-      "oak"
+      "bed",
+      "furniture",
+      "platform bed",
+      "headboard"
     ],
     "style_terms": [
       "japandi",
       "minimal",
+      "wabi-sabi",
       "zen",
+      "natural",
       "organic"
     ]
   },
@@ -2501,13 +2771,17 @@
     "product_type": "bed frame",
     "product_terms": [
       "bed frame",
-      "platform",
-      "oak"
+      "bed",
+      "furniture",
+      "platform bed",
+      "headboard"
     ],
     "style_terms": [
       "japandi",
       "minimal",
+      "wabi-sabi",
       "zen",
+      "natural",
       "organic"
     ]
   },
@@ -2536,13 +2810,17 @@
     "product_type": "bed frame",
     "product_terms": [
       "bed frame",
-      "platform",
-      "oak"
+      "bed",
+      "furniture",
+      "platform bed",
+      "headboard"
     ],
     "style_terms": [
       "japandi",
       "minimal",
+      "wabi-sabi",
       "zen",
+      "natural",
       "organic"
     ]
   },
@@ -2570,13 +2848,17 @@
     "product_type": "bed frame",
     "product_terms": [
       "bed frame",
-      "platform",
-      "oak"
+      "bed",
+      "furniture",
+      "platform bed",
+      "headboard"
     ],
     "style_terms": [
       "japandi",
       "minimal",
+      "wabi-sabi",
       "zen",
+      "natural",
       "organic"
     ]
   },
@@ -2603,13 +2885,17 @@
     "product_type": "pillow",
     "product_terms": [
       "pillow",
-      "linen",
-      "throw pillow"
+      "throw pillow",
+      "cushion",
+      "home decor",
+      "linen"
     ],
     "style_terms": [
       "japandi",
       "minimal",
+      "wabi-sabi",
       "zen",
+      "natural",
       "organic"
     ]
   },
@@ -2636,13 +2922,17 @@
     "product_type": "pillow",
     "product_terms": [
       "pillow",
-      "linen",
-      "throw pillow"
+      "throw pillow",
+      "cushion",
+      "home decor",
+      "linen"
     ],
     "style_terms": [
       "japandi",
       "minimal",
+      "wabi-sabi",
       "zen",
+      "natural",
       "organic"
     ]
   },
@@ -2669,13 +2959,17 @@
     "product_type": "pillow",
     "product_terms": [
       "pillow",
-      "linen",
-      "throw pillow"
+      "throw pillow",
+      "cushion",
+      "home decor",
+      "linen"
     ],
     "style_terms": [
       "japandi",
       "minimal",
+      "wabi-sabi",
       "zen",
+      "natural",
       "organic"
     ]
   },
@@ -2703,13 +2997,17 @@
     "product_type": "pillow",
     "product_terms": [
       "pillow",
-      "linen",
-      "throw pillow"
+      "throw pillow",
+      "cushion",
+      "home decor",
+      "linen"
     ],
     "style_terms": [
       "japandi",
       "minimal",
+      "wabi-sabi",
       "zen",
+      "natural",
       "organic"
     ]
   },
@@ -2737,14 +3035,17 @@
     "product_type": "bowl",
     "product_terms": [
       "bowl",
+      "dinnerware",
+      "tableware",
       "ceramic",
-      "matte",
       "set"
     ],
     "style_terms": [
       "japandi",
       "minimal",
+      "wabi-sabi",
       "zen",
+      "natural",
       "organic"
     ]
   },
@@ -2773,14 +3074,17 @@
     "product_type": "bowl",
     "product_terms": [
       "bowl",
+      "dinnerware",
+      "tableware",
       "ceramic",
-      "matte",
       "set"
     ],
     "style_terms": [
       "japandi",
       "minimal",
+      "wabi-sabi",
       "zen",
+      "natural",
       "organic"
     ]
   },
@@ -2808,14 +3112,17 @@
     "product_type": "bowl",
     "product_terms": [
       "bowl",
+      "dinnerware",
+      "tableware",
       "ceramic",
-      "matte",
       "set"
     ],
     "style_terms": [
       "japandi",
       "minimal",
+      "wabi-sabi",
       "zen",
+      "natural",
       "organic"
     ]
   },
@@ -2843,14 +3150,17 @@
     "product_type": "bowl",
     "product_terms": [
       "bowl",
+      "dinnerware",
+      "tableware",
       "ceramic",
-      "matte",
       "set"
     ],
     "style_terms": [
       "japandi",
       "minimal",
+      "wabi-sabi",
       "zen",
+      "natural",
       "organic"
     ]
   },
@@ -2877,6 +3187,8 @@
     "product_type": "vase",
     "product_terms": [
       "vase",
+      "vessel",
+      "home decor",
       "terracotta",
       "ceramic"
     ],
@@ -2884,7 +3196,9 @@
       "coastal",
       "mediterranean",
       "earthy",
-      "artisanal"
+      "warm",
+      "artisanal",
+      "rustic"
     ]
   },
   {
@@ -2909,6 +3223,8 @@
     "product_type": "vase",
     "product_terms": [
       "vase",
+      "vessel",
+      "home decor",
       "terracotta",
       "ceramic"
     ],
@@ -2916,7 +3232,9 @@
       "coastal",
       "mediterranean",
       "earthy",
-      "artisanal"
+      "warm",
+      "artisanal",
+      "rustic"
     ]
   },
   {
@@ -2941,6 +3259,8 @@
     "product_type": "vase",
     "product_terms": [
       "vase",
+      "vessel",
+      "home decor",
       "terracotta",
       "ceramic"
     ],
@@ -2948,7 +3268,9 @@
       "coastal",
       "mediterranean",
       "earthy",
-      "artisanal"
+      "warm",
+      "artisanal",
+      "rustic"
     ]
   },
   {
@@ -2973,6 +3295,8 @@
     "product_type": "vase",
     "product_terms": [
       "vase",
+      "vessel",
+      "home decor",
       "terracotta",
       "ceramic"
     ],
@@ -2980,7 +3304,9 @@
       "coastal",
       "mediterranean",
       "earthy",
-      "artisanal"
+      "warm",
+      "artisanal",
+      "rustic"
     ]
   },
   {
@@ -3006,14 +3332,18 @@
     "product_type": "pendant light",
     "product_terms": [
       "pendant light",
+      "lamp shade",
+      "lighting",
       "rattan",
-      "woven"
+      "ceiling light"
     ],
     "style_terms": [
       "coastal",
       "mediterranean",
       "earthy",
-      "artisanal"
+      "warm",
+      "artisanal",
+      "rustic"
     ]
   },
   {
@@ -3039,14 +3369,18 @@
     "product_type": "pendant light",
     "product_terms": [
       "pendant light",
+      "lamp shade",
+      "lighting",
       "rattan",
-      "woven"
+      "ceiling light"
     ],
     "style_terms": [
       "coastal",
       "mediterranean",
       "earthy",
-      "artisanal"
+      "warm",
+      "artisanal",
+      "rustic"
     ]
   },
   {
@@ -3072,14 +3406,18 @@
     "product_type": "pendant light",
     "product_terms": [
       "pendant light",
+      "lamp shade",
+      "lighting",
       "rattan",
-      "woven"
+      "ceiling light"
     ],
     "style_terms": [
       "coastal",
       "mediterranean",
       "earthy",
-      "artisanal"
+      "warm",
+      "artisanal",
+      "rustic"
     ]
   },
   {
@@ -3104,14 +3442,18 @@
     "product_type": "pendant light",
     "product_terms": [
       "pendant light",
+      "lamp shade",
+      "lighting",
       "rattan",
-      "woven"
+      "ceiling light"
     ],
     "style_terms": [
       "coastal",
       "mediterranean",
       "earthy",
-      "artisanal"
+      "warm",
+      "artisanal",
+      "rustic"
     ]
   },
   {
@@ -3137,14 +3479,18 @@
     "product_type": "curtains",
     "product_terms": [
       "curtains",
-      "linen",
-      "sheer"
+      "drapes",
+      "window treatment",
+      "sheer",
+      "linen"
     ],
     "style_terms": [
       "coastal",
       "mediterranean",
       "earthy",
-      "artisanal"
+      "warm",
+      "artisanal",
+      "rustic"
     ]
   },
   {
@@ -3170,14 +3516,18 @@
     "product_type": "curtains",
     "product_terms": [
       "curtains",
-      "linen",
-      "sheer"
+      "drapes",
+      "window treatment",
+      "sheer",
+      "linen"
     ],
     "style_terms": [
       "coastal",
       "mediterranean",
       "earthy",
-      "artisanal"
+      "warm",
+      "artisanal",
+      "rustic"
     ]
   },
   {
@@ -3203,14 +3553,18 @@
     "product_type": "curtains",
     "product_terms": [
       "curtains",
-      "linen",
-      "sheer"
+      "drapes",
+      "window treatment",
+      "sheer",
+      "linen"
     ],
     "style_terms": [
       "coastal",
       "mediterranean",
       "earthy",
-      "artisanal"
+      "warm",
+      "artisanal",
+      "rustic"
     ]
   },
   {
@@ -3236,14 +3590,18 @@
     "product_type": "curtains",
     "product_terms": [
       "curtains",
-      "linen",
-      "sheer"
+      "drapes",
+      "window treatment",
+      "sheer",
+      "linen"
     ],
     "style_terms": [
       "coastal",
       "mediterranean",
       "earthy",
-      "artisanal"
+      "warm",
+      "artisanal",
+      "rustic"
     ]
   },
   {
@@ -3270,13 +3628,17 @@
     "product_terms": [
       "chair",
       "accent chair",
+      "seating",
+      "furniture",
       "velvet"
     ],
     "style_terms": [
       "maximalist",
       "eclectic",
       "bold",
-      "colorful"
+      "colorful",
+      "ornate",
+      "expressive"
     ]
   },
   {
@@ -3303,13 +3665,17 @@
     "product_terms": [
       "chair",
       "accent chair",
+      "seating",
+      "furniture",
       "velvet"
     ],
     "style_terms": [
       "maximalist",
       "eclectic",
       "bold",
-      "colorful"
+      "colorful",
+      "ornate",
+      "expressive"
     ]
   },
   {
@@ -3336,13 +3702,17 @@
     "product_terms": [
       "chair",
       "accent chair",
+      "seating",
+      "furniture",
       "velvet"
     ],
     "style_terms": [
       "maximalist",
       "eclectic",
       "bold",
-      "colorful"
+      "colorful",
+      "ornate",
+      "expressive"
     ]
   },
   {
@@ -3369,13 +3739,17 @@
     "product_terms": [
       "chair",
       "accent chair",
+      "seating",
+      "furniture",
       "velvet"
     ],
     "style_terms": [
       "maximalist",
       "eclectic",
       "bold",
-      "colorful"
+      "colorful",
+      "ornate",
+      "expressive"
     ]
   },
   {
@@ -3403,14 +3777,18 @@
     "product_type": "frame",
     "product_terms": [
       "frame",
+      "picture frame",
+      "wall decor",
       "gallery wall",
-      "gold"
+      "set"
     ],
     "style_terms": [
       "maximalist",
       "eclectic",
       "bold",
-      "colorful"
+      "colorful",
+      "ornate",
+      "expressive"
     ]
   },
   {
@@ -3438,14 +3816,18 @@
     "product_type": "frame",
     "product_terms": [
       "frame",
+      "picture frame",
+      "wall decor",
       "gallery wall",
-      "gold"
+      "set"
     ],
     "style_terms": [
       "maximalist",
       "eclectic",
       "bold",
-      "colorful"
+      "colorful",
+      "ornate",
+      "expressive"
     ]
   },
   {
@@ -3473,14 +3855,18 @@
     "product_type": "frame",
     "product_terms": [
       "frame",
+      "picture frame",
+      "wall decor",
       "gallery wall",
-      "gold"
+      "set"
     ],
     "style_terms": [
       "maximalist",
       "eclectic",
       "bold",
-      "colorful"
+      "colorful",
+      "ornate",
+      "expressive"
     ]
   },
   {
@@ -3508,14 +3894,18 @@
     "product_type": "frame",
     "product_terms": [
       "frame",
+      "picture frame",
+      "wall decor",
       "gallery wall",
-      "gold"
+      "set"
     ],
     "style_terms": [
       "maximalist",
       "eclectic",
       "bold",
-      "colorful"
+      "colorful",
+      "ornate",
+      "expressive"
     ]
   },
   {
@@ -3544,6 +3934,8 @@
     "product_type": "rug",
     "product_terms": [
       "rug",
+      "area rug",
+      "floor covering",
       "wool",
       "patterned"
     ],
@@ -3551,7 +3943,9 @@
       "maximalist",
       "eclectic",
       "bold",
-      "colorful"
+      "colorful",
+      "ornate",
+      "expressive"
     ]
   },
   {
@@ -3579,6 +3973,8 @@
     "product_type": "rug",
     "product_terms": [
       "rug",
+      "area rug",
+      "floor covering",
       "wool",
       "patterned"
     ],
@@ -3586,7 +3982,9 @@
       "maximalist",
       "eclectic",
       "bold",
-      "colorful"
+      "colorful",
+      "ornate",
+      "expressive"
     ]
   },
   {
@@ -3614,6 +4012,8 @@
     "product_type": "rug",
     "product_terms": [
       "rug",
+      "area rug",
+      "floor covering",
       "wool",
       "patterned"
     ],
@@ -3621,7 +4021,9 @@
       "maximalist",
       "eclectic",
       "bold",
-      "colorful"
+      "colorful",
+      "ornate",
+      "expressive"
     ]
   },
   {
@@ -3649,6 +4051,8 @@
     "product_type": "rug",
     "product_terms": [
       "rug",
+      "area rug",
+      "floor covering",
       "wool",
       "patterned"
     ],
@@ -3656,7 +4060,9 @@
       "maximalist",
       "eclectic",
       "bold",
-      "colorful"
+      "colorful",
+      "ornate",
+      "expressive"
     ]
   },
   {
@@ -3682,13 +4088,17 @@
     "product_type": "candle holder",
     "product_terms": [
       "candle holder",
+      "candlestick",
+      "home decor",
       "concrete",
-      "matte black"
+      "taper"
     ],
     "style_terms": [
       "dark moody",
       "organic",
       "earthy",
+      "brooding",
+      "artisanal",
       "textured"
     ]
   },
@@ -3717,13 +4127,17 @@
     "product_type": "candle holder",
     "product_terms": [
       "candle holder",
+      "candlestick",
+      "home decor",
       "concrete",
-      "matte black"
+      "taper"
     ],
     "style_terms": [
       "dark moody",
       "organic",
       "earthy",
+      "brooding",
+      "artisanal",
       "textured"
     ]
   },
@@ -3751,13 +4165,17 @@
     "product_type": "candle holder",
     "product_terms": [
       "candle holder",
+      "candlestick",
+      "home decor",
       "concrete",
-      "matte black"
+      "taper"
     ],
     "style_terms": [
       "dark moody",
       "organic",
       "earthy",
+      "brooding",
+      "artisanal",
       "textured"
     ]
   },
@@ -3785,13 +4203,17 @@
     "product_type": "candle holder",
     "product_terms": [
       "candle holder",
+      "candlestick",
+      "home decor",
       "concrete",
-      "matte black"
+      "taper"
     ],
     "style_terms": [
       "dark moody",
       "organic",
       "earthy",
+      "brooding",
+      "artisanal",
       "textured"
     ]
   },
@@ -3818,13 +4240,17 @@
     "product_type": "mug",
     "product_terms": [
       "mug",
+      "cup",
+      "drinkware",
       "stoneware",
-      "handmade"
+      "ceramic"
     ],
     "style_terms": [
       "dark moody",
       "organic",
       "earthy",
+      "brooding",
+      "artisanal",
       "textured"
     ]
   },
@@ -3852,13 +4278,17 @@
     "product_type": "mug",
     "product_terms": [
       "mug",
+      "cup",
+      "drinkware",
       "stoneware",
-      "handmade"
+      "ceramic"
     ],
     "style_terms": [
       "dark moody",
       "organic",
       "earthy",
+      "brooding",
+      "artisanal",
       "textured"
     ]
   },
@@ -3886,13 +4316,17 @@
     "product_type": "mug",
     "product_terms": [
       "mug",
+      "cup",
+      "drinkware",
       "stoneware",
-      "handmade"
+      "ceramic"
     ],
     "style_terms": [
       "dark moody",
       "organic",
       "earthy",
+      "brooding",
+      "artisanal",
       "textured"
     ]
   },
@@ -3920,13 +4354,17 @@
     "product_type": "mug",
     "product_terms": [
       "mug",
+      "cup",
+      "drinkware",
       "stoneware",
-      "handmade"
+      "ceramic"
     ],
     "style_terms": [
       "dark moody",
       "organic",
       "earthy",
+      "brooding",
+      "artisanal",
       "textured"
     ]
   },
@@ -3953,13 +4391,17 @@
     "product_type": "duvet",
     "product_terms": [
       "duvet",
+      "duvet cover",
+      "bedding",
       "linen",
-      "bedding"
+      "bed linen"
     ],
     "style_terms": [
       "dark moody",
       "organic",
       "earthy",
+      "brooding",
+      "artisanal",
       "textured"
     ]
   },
@@ -3986,13 +4428,17 @@
     "product_type": "duvet",
     "product_terms": [
       "duvet",
+      "duvet cover",
+      "bedding",
       "linen",
-      "bedding"
+      "bed linen"
     ],
     "style_terms": [
       "dark moody",
       "organic",
       "earthy",
+      "brooding",
+      "artisanal",
       "textured"
     ]
   },
@@ -4019,13 +4465,17 @@
     "product_type": "duvet",
     "product_terms": [
       "duvet",
+      "duvet cover",
+      "bedding",
       "linen",
-      "bedding"
+      "bed linen"
     ],
     "style_terms": [
       "dark moody",
       "organic",
       "earthy",
+      "brooding",
+      "artisanal",
       "textured"
     ]
   },
@@ -4052,13 +4502,17 @@
     "product_type": "duvet",
     "product_terms": [
       "duvet",
+      "duvet cover",
+      "bedding",
       "linen",
-      "bedding"
+      "bed linen"
     ],
     "style_terms": [
       "dark moody",
       "organic",
       "earthy",
+      "brooding",
+      "artisanal",
       "textured"
     ]
   }
