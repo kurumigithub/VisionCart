@@ -249,11 +249,7 @@ You don't need to write this — just make sure your `run()` function returns `{
 
 ---
 
-## Key things to coordinate with your team
-
-- **What does `ranked_products` look like exactly?** Ask Kurumi and Lance what keys each product dict will have so your `format_products_for_prompt()` function maps correctly.
-- **Does `style_profile` come as a text string or an embedding vector?** For your agent it needs to be text — confirm stylist.py also writes a human-readable version of the profile to state, not just the CLIP embedding.
-- **Where does `output_text` get consumed?** The final output might go to a UI component, a notebook display, or just printed — knowing the downstream consumer shapes how you format the response.
+> Cross-agent coordination items for this agent are tracked in [`docs/eval_tasks_2026-04-20.md`](eval_tasks_2026-04-20.md) under **Cross-Agent Coordination Tasks**.
 
 ---
 
