@@ -181,7 +181,7 @@ Each product is scored on three axes:
 | Dimension | Default weight | Method |
 |-----------|---------------|--------|
 | Image similarity | 50% | Cosine similarity between `board_embedding` and `product["image_embedding"]` |
-| Text similarity | 30% | `keyword_overlap_score(style_keywords + style_elements, product_text)` |
+| Text similarity | 30% | `keyword_overlap_score(style_keywords + style_summary_words, product_text)` — words from `style_summary` longer than 3 chars are added to the keyword pool; `style_elements` are NOT included here |
 | Semantic match | 20% | Rule-based: bonuses for preferred materials/colors, penalties for avoided ones |
 
 **Text-only fallback** — when `board_embedding` or `product["image_embedding"]` is empty, image similarity is skipped and the remaining weights are renormalized:
