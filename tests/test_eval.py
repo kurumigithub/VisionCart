@@ -67,6 +67,8 @@ DATASET_PATH       = REPO_ROOT / "dataset" / "dataset.json"
 # and the procurement agent (stylist_output).  query_terms are injected on top
 # at call time so keyword matching targets the exact original query.
 
+#Essentially the hardcoded stylist outputs so bypass the stylist agent for procurement and ranker evals.
+
 STYLE_DEFINITIONS: Dict[str, Dict[str, Any]] = {
     "dark_academia": {
         "style_summary": (
