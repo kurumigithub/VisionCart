@@ -316,45 +316,34 @@ STYLE_DEFINITIONS: Dict[str, Dict[str, Any]] = {
 
 # ── Mock builders ─────────────────────────────────────────────────────────────
 
-def make_style_profile(style_label: str, query_terms: List[str], query: str = "") -> Dict[str, Any]:
+def make_style_profile(style_label: str, query: str = "") -> Dict[str, Any]:
     """
-    Build a ranker-compatible style_profile dict.
-
-    The query_terms are merged into style_keywords so the ranker's
-    keyword_overlap_score rewards products that match the original search query.
-
-    style_summary is left empty intentionally: ranker_critic._compute_scores
-    extends the keyword pool with every word in the summary, which dilutes
-    txt_sim when using a generic mock summary.  In production the stylist
-    generates a tight, image-specific summary — the eval uses style_keywords
-    + injected query_terms instead.
+    Build a ranker-compatible style_profile dict using only style-level signals.
+    query_terms are intentionally excluded so the ranker scores on aesthetic fit,
+    not on the original GT query.
     """
     defn = STYLE_DEFINITIONS.get(style_label, {})
-    base_kw = list(defn.get("style_keywords", []))
-    merged_kw = list(dict.fromkeys(base_kw + [t.lower() for t in query_terms]))
     return {
         "board_id":      f"{style_label}__{query.replace(' ', '_')}",
         "style_summary": "",
-        "style_keywords": merged_kw,
+        "style_keywords": list(defn.get("style_keywords", [])),
         "style_elements": defn.get("style_elements", []),
         "color_palette": defn.get("color_palette", {"dominant": [], "accent": [], "avoid": []}),
         "materials":     defn.get("materials", {"preferred": [], "avoid": []}),
         "constraints":   defn.get("constraints", {"must_avoid": []}),
-        "board_embedding": [],  # no image embeddings → text-only scoring path
+        "board_embedding": [],
     }
 
 
-def make_stylist_output(style_label: str, query_terms: List[str]) -> Dict[str, Any]:
+def make_stylist_output(style_label: str) -> Dict[str, Any]:
     """
-    Build a procurement-compatible stylist_output dict.
-
-    The query terms are embedded in style_profile so the LLM is nudged toward
-    generating queries that match the original search terms.
+    Build a procurement-compatible stylist_output dict using only style-level
+    signals. query_terms are excluded so the LLM must infer what to search from
+    the style description alone, matching real production conditions.
     """
     defn = STYLE_DEFINITIONS.get(style_label, {})
-    query_hint = " ".join(query_terms)
     return {
-        "style_profile": f"{defn.get('style_summary', style_label)}  Key search terms: {query_hint}.",
+        "style_profile": defn.get("style_summary", style_label),
         "aesthetic":     defn.get("aesthetic", [style_label]),
         "colors":        defn.get("colors", []),
         "materials":     defn.get("proc_materials", []),
@@ -420,7 +409,6 @@ def eval_ranker_full_pool(
     """
     style_label = entry["style_label"]
     query       = entry["query"]
-    query_terms = entry["query_terms"]
     gt_products = entry["ground_truth"]
 
     gt_names = {p["product_name"].lower() for p in gt_products}
@@ -430,7 +418,7 @@ def eval_ranker_full_pool(
         if c["product_name"].lower() in gt_names
     }
 
-    style_profile = make_style_profile(style_label, query_terms, query)
+    style_profile = make_style_profile(style_label, query)
     state = {
         "style_profile":      style_profile,
         "candidate_products": all_candidates,
@@ -473,10 +461,9 @@ def eval_ranker_gt_only(entry: Dict[str, Any]) -> Dict[str, Any]:
     """
     style_label = entry["style_label"]
     query       = entry["query"]
-    query_terms = entry["query_terms"]
     gt_products = entry["ground_truth"]
 
-    style_profile = make_style_profile(style_label, query_terms, query)
+    style_profile = make_style_profile(style_label, query)
     candidates    = [_format_product(p, f"gt_{i}") for i, p in enumerate(gt_products)]
 
     state = {
@@ -529,7 +516,6 @@ def eval_full_pipeline(entry: Dict[str, Any]) -> Dict[str, Any]:
 
     style_label = entry["style_label"]
     query       = entry["query"]
-    query_terms = entry["query_terms"]
     gt_products = entry["ground_truth"]
 
     _original_build = procurement.build_queries
@@ -539,12 +525,12 @@ def eval_full_pipeline(entry: Dict[str, Any]) -> Dict[str, Any]:
 
     procurement.build_queries = _fixed_build
     try:
-        proc_raw  = procurement.run({"stylist_output": make_stylist_output(style_label, query_terms)})
+        proc_raw  = procurement.run({"stylist_output": make_stylist_output(style_label)})
         proc_data = json.loads(proc_raw)
     finally:
         procurement.build_queries = _original_build
 
-    style_profile = make_style_profile(style_label, query_terms, query)
+    style_profile = make_style_profile(style_label, query)
     state = {
         "style_profile":        style_profile,
         "procurement_products": proc_data["procurement_products"],
@@ -599,10 +585,9 @@ def eval_dataset_search(
 
     style_label = entry["style_label"]
     query       = entry["query"]
-    query_terms = entry["query_terms"]
     gt_products = entry["ground_truth"]
 
-    stylist_dict = make_stylist_output(style_label, query_terms)
+    stylist_dict = make_stylist_output(style_label)
     style = StylistOutput(
         style_profile=stylist_dict["style_profile"],
         aesthetic=stylist_dict["aesthetic"],
@@ -648,7 +633,7 @@ def eval_dataset_search(
     gt_names = {p["product_name"].lower() for p in gt_products}
     gt_ids   = {c["product_id"] for c in candidates if c["product_name"].lower() in gt_names}
 
-    style_profile = make_style_profile(style_label, query_terms, query)
+    style_profile = make_style_profile(style_label, query)
     state = {
         "style_profile":      style_profile,
         "candidate_products": candidates,
