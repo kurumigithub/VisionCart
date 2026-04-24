@@ -74,30 +74,4 @@ Items extracted from agent guides that require team-wide decisions or cross-agen
 | Add state continuity validator | None |
 | Canonicalize `style_profile` schema in `state.py` | ✅ Done |
 | Full pipeline run | Fixes 1–3 + GPU + HF_TOKEN + SERPAPI_API_KEY |
-
 ---
-
-## Contract Fix Plan: `style_profile` from Stylist Only
-
-### Target contract
-- `stylist` is the source of truth for style understanding.
-- Top-level `state["style_profile"]` is derived from `state["stylist_output"]` immediately after stylist runs.
-- `procurement` output is limited to:
-  - `candidate_products`
-  - `procurement_queries`
-  - `iterations`
-
-### Step-by-step implementation
-1. Define canonical `style_profile` shape in shared state/util code used by both LC and LG paths.
-2. Add a helper in pipeline entry points that maps `stylist_output` -> canonical `style_profile` dict.
-3. In `main-LC.py`, set `state["style_profile"]` right after `stylist.run(state)` and before `procurement.run(state)`.
-4. In `main-LG.py`, keep `stylist_node` returning `stylist_output`, and set `style_profile` from stylist-derived data before/within procurement handoff logic (without reading style fields from procurement response).
-5. Update `procurement.run()` return payload contract to include only product/query results; remove `style_profile` from return JSON.
-6. Update `main-LC.py`/`main-LG.py` parsing code to stop reading `style_profile` from procurement output.
-7. Add a runtime assertion in both pipelines: `style_profile` must be a non-empty dict before ranker is called.
-8. Verify ranker logs show non-empty style profile keys and no `{}` fallback.
-
-### Acceptance criteria
-- No assignment to top-level `state["style_profile"]` from procurement output in LC or LG.
-- Procurement response schema contains only `candidate_products`/`procurement_queries` (plus `iterations` managed by orchestration logic).
-- Ranker receives structured `style_profile` dict in both LC and LG runs.
