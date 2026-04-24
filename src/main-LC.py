@@ -50,6 +50,7 @@ def run_vision_cart(board_url: str, max_images: int = 5):
     state: AgentState = {
         "vision_board_paths": image_paths,
         "num_products": 5,
+        "iterations": 0,
         "stylist_output": {},
         "candidate_products": [],
         "ranked_products": [],

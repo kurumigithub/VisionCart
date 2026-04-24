@@ -1,6 +1,8 @@
 from typing import TypedDict, List, Dict, Any, Optional
 
 class AgentState(TypedDict):
+    interations: int
+    
     # Inputs
     vision_board_paths: List[str]
     num_products: int

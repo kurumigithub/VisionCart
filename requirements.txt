@@ -22,3 +22,8 @@ bitsandbytes
 pytest
 nbformat
 Pillow
+langgraph
+langchain
+langchain-openai
+pydantic>=2.0.0
+numpy
