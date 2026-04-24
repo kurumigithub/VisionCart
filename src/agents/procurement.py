@@ -5,7 +5,7 @@ import os
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-from tools.api import serpapi_google_shopping_search
+from src.tools.api import serpapi_google_shopping_search
 
 
 @dataclass(frozen=True)
