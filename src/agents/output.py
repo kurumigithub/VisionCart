@@ -61,12 +61,32 @@ def build_output_products(ranked_products: list) -> list:
     return results
 
 
+def _style_profile_to_text(style_profile) -> str:
+    if isinstance(style_profile, str):
+        return style_profile.strip()
+    if not isinstance(style_profile, dict):
+        return ""
+
+    keywords = style_profile.get("style_keywords") or []
+    colors = style_profile.get("color_palette") or []
+    materials = style_profile.get("materials") or []
+
+    parts = []
+    if keywords:
+        parts.append(f"Aesthetic: {', '.join(keywords)}")
+    if colors:
+        parts.append(f"Colors: {', '.join(colors)}")
+    if materials:
+        parts.append(f"Materials: {', '.join(materials)}")
+    return " | ".join(parts)
+
+
 def run(state: dict) -> dict:
     """
     LangGraph node: generate human-readable output from ranked results.
 
     Reads from state:
-        - style_profile (str): text description of the user's aesthetic
+        - style_profile (str|dict): text or canonical style profile dict
         - ranked_products (list): products sorted by similarity score
         - critic_notes (str, optional): any rejections or flags from the critic
 
@@ -75,15 +95,16 @@ def run(state: dict) -> dict:
         - output_products (list): top 3-5 products for UI card rendering
     """
     style_profile = state.get("style_profile", "")
+    style_profile_text = _style_profile_to_text(style_profile)
     ranked_products = state.get("ranked_products", [])
     critic_notes = state.get("critic_notes", "")
 
     print(f"\n[output] ── run() ────────────────────────────────────")
     print(f"[output] ranked_products count: {len(ranked_products)}")
-    print(f"[output] style_profile length: {len(style_profile)} chars")
+    print(f"[output] style_profile length: {len(style_profile_text)} chars")
     print(f"[output] critic_notes: {critic_notes!r}")
 
-    if not style_profile:
+    if not style_profile_text:
         return {
             "output_text": (
                 "We couldn't determine your style profile. "
@@ -108,7 +129,7 @@ def run(state: dict) -> dict:
         else f"({total} result{'s' if total != 1 else ''} found)"
     )
 
-    user_message = f"""Style profile: {style_profile}
+    user_message = f"""Style profile: {style_profile_text}
 
 Ranked products {count_note}:
 {products_block}

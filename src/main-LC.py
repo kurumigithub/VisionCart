@@ -4,7 +4,7 @@ import json
 import argparse
 from typing import List, Dict, Any
 from src.utils import pinterest_crawler
-from src.graph.state import AgentState
+from src.graph.state import AgentState, style_profile_from_stylist_output
 from src.agents import stylist, procurement, ranker_critic, output
 
 def get_image_paths_from_url(board_url: str, max_images: int = 5) -> List[str]:
@@ -58,15 +58,19 @@ def run_vision_cart(board_url: str, max_images: int = 5):
     }
 
     print("stylist agent analysis")
-    state.update(stylist.run(state)) 
+    state.update(stylist.run(state))
+    state["style_profile"] = style_profile_from_stylist_output(state.get("stylist_output") or {})
 
     print("procurement agent search")
     # returns a JSON string, we must parse it back into the state
     procurement_raw = procurement.run(state)
     procurement_data = json.loads(procurement_raw)
-    state["candidate_products"] = procurement_data["procurement_products"]
+    state["candidate_products"] = procurement_data["candidate_products"]
     state["procurement_queries"] = procurement_data["procurement_queries"]
-    state["style_profile"] = procurement_data["style_profile"]
+    state["iterations"] = int(procurement_data.get("iterations", state.get("iterations", 0))) + 1
+
+    if not isinstance(state.get("style_profile"), dict) or not state["style_profile"]:
+        raise ValueError("style_profile must be a non-empty dict derived from stylist_output before ranker.")
 
     print("ranker/critic evaluation")
     ranker_results = ranker_critic.run(state)

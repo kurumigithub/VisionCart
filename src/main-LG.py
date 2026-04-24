@@ -5,7 +5,7 @@ from typing import Literal, Dict, Any
 from langgraph.graph import StateGraph, END
 
 # Import your existing components
-from src.graph.state import AgentState
+from src.graph.state import AgentState, style_profile_from_stylist_output
 from src.agents import stylist, procurement, ranker_critic, output
 from src.utils import pinterest_crawler
 
@@ -13,7 +13,12 @@ from src.utils import pinterest_crawler
 
 def stylist_node(state: AgentState):
     print("\n[Node] Stylist: Analyzing aesthetic vibes...")
-    return stylist.run(state)
+    stylist_result = stylist.run(state)
+    stylist_output = stylist_result.get("stylist_output") or {}
+    return {
+        "stylist_output": stylist_output,
+        "style_profile": style_profile_from_stylist_output(stylist_output),
+    }
 
 def procurement_node(state: AgentState):
     current_iter = state.get("iterations", 0)
@@ -24,14 +29,15 @@ def procurement_node(state: AgentState):
     procurement_data = json.loads(procurement_raw)
     
     return {
-        "candidate_products": procurement_data["procurement_products"],
+        "candidate_products": procurement_data["candidate_products"],
         "procurement_queries": procurement_data["procurement_queries"],
-        "style_profile": procurement_data["style_profile"],
-        "iterations": current_iter + 1
+        "iterations": int(procurement_data.get("iterations", current_iter)) + 1,
     }
 
 def critic_node(state: AgentState):
     print("\n[Node] Ranker/Critic: Evaluating product relevance...")
+    if not isinstance(state.get("style_profile"), dict) or not state["style_profile"]:
+        raise ValueError("style_profile must be a non-empty dict derived from stylist_output before ranker.")
     return ranker_critic.run(state)
 
 def output_node(state: AgentState):
@@ -126,7 +132,7 @@ def run_vision_cart(url: str):
         "stylist_output": {},
         "procurement_queries": [],
         "candidate_products": [],
-        "style_profile": "",
+        "style_profile": {},
         "ranked_products": [],
         "rejected_products": [],
         "output_text": "",

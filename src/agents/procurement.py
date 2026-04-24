@@ -177,8 +177,8 @@ def run(state: Dict[str, Any]) -> str:
 
     Returns a JSON string with keys:
       - procurement_queries (list)
-      - procurement_products (list): full candidate pool with image_url, product_name, price, link, tags
-      - style_profile (str)
+      - candidate_products (list): full candidate pool with image_url, product_name, price, link, tags
+      - iterations (int): passthrough current retry counter from orchestration state
     """
     if not os.environ.get("SERPAPI_API_KEY"):
         try:
@@ -221,7 +221,7 @@ def run(state: Dict[str, Any]) -> str:
     print(f"[procurement] Done. Total candidate pool: {len(all_products)} products.")
     result = {
         "procurement_queries": queries,
-        "procurement_products": _shape_products(all_products),
-        "style_profile": style.style_profile,
+        "candidate_products": _shape_products(all_products),
+        "iterations": int(state.get("iterations", 0)),
     }
     return json.dumps(result, indent=2)
