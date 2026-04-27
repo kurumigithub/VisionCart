@@ -1,17 +1,30 @@
 """
 VisionCart evaluation harness — procurement + ranker/critic, no stylist needed.
 
-Loads dataset/eval_queries.json (30 entries: one per unique style_label+query pair,
-each with 4 ground-truth products).  Builds mock stylist outputs directly from the
-style_label and query_terms so the stylist agent is bypassed entirely.
+Loads eval_queries.json (30 entries), test_queries.json (24 entries, 8 styles),
+or eval_queries_split.json (6 entries, 2 held-out styles) depending on --split.
+Builds mock stylist outputs directly from the style_label so the stylist agent
+is bypassed entirely.
+
+Split strategy (--split)
+------------------------
+(no flag)  Full eval_queries.json — 30 queries across all 10 styles.
+--split test
+    test_queries.json — 24 queries, 8 styles.  Candidate pool is restricted to
+    products from those 8 styles (96 products) so held-out eval-style products
+    never appear in test debug output, eliminating cross-split leakage.
+--split eval
+    eval_queries_split.json — 6 queries, 2 held-out styles (quiet_luxury,
+    dark_moody_organic).  Candidate pool is the full 120-product database so
+    the model must generalise against the entire catalogue.  Run sparingly to
+    avoid overfitting the prompts to the held-out styles.
 
 Evaluation modes
 ----------------
 default (ranker, full dataset pool)
-    Uses all 120 dataset products as the candidate pool.  Tests whether the
-    ranker can correctly identify the 4 ground-truth products out of all 120.
-    This is the closest simulation of "does the model grab the right items from
-    the database".  No API keys required.
+    Uses the split's candidate pool as the candidate set.  Tests whether the
+    ranker can correctly identify the 4 ground-truth products out of the pool.
+    No API keys required.
 
 --gt-only
     Uses only the 4 ground-truth products as candidates.  Useful for checking
@@ -20,7 +33,7 @@ default (ranker, full dataset pool)
 
 --dataset-search  (requires HF_TOKEN only)
     Uses the real procurement LLM (Qwen via HF API) to generate queries from the
-    mock stylist output, then searches the 120-product dataset by keyword overlap
+    mock stylist output, then searches the candidate pool by keyword overlap
     instead of calling SerpAPI.  Tests end-to-end query generation + ranking with
     no external shopping API needed.
 
@@ -31,12 +44,15 @@ default (ranker, full dataset pool)
 
 Usage
 -----
-python tests/test_eval.py                            # full-pool ranker eval
-python tests/test_eval.py --gt-only                  # GT-only ranker eval
-python tests/test_eval.py --dataset-search           # LLM queries + dataset search
-python tests/test_eval.py --style dark_academia      # single style
-python tests/test_eval.py --full                     # procurement + ranker (API keys)
-python tests/test_eval.py --out results/eval.json    # save per-query results
+python tests/test_eval.py                                       # full-pool ranker eval (all 30)
+python tests/test_eval.py --split test                          # 8-style test split
+python tests/test_eval.py --split eval                          # 2-style held-out eval split
+python tests/test_eval.py --split test --dataset-search         # LLM queries + dataset search (test)
+python tests/test_eval.py --split eval --dataset-search         # LLM queries + dataset search (eval)
+python tests/test_eval.py --gt-only                             # GT-only ranker eval
+python tests/test_eval.py --style dark_academia                 # single style
+python tests/test_eval.py --full                                # procurement + ranker (API keys)
+python tests/test_eval.py --out results/eval.json               # save per-query results
 """
 
 from __future__ import annotations
@@ -59,6 +75,8 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 from agents.ranker_critic import run as ranker_run  # noqa: E402
 
 EVAL_QUERIES_PATH  = REPO_ROOT / "dataset" / "eval_queries.json"
+TEST_QUERIES_PATH  = REPO_ROOT / "dataset" / "test.json"
+EVAL_SPLIT_PATH    = REPO_ROOT / "dataset" / "Eval.json"
 DATASET_PATH       = REPO_ROOT / "dataset" / "dataset.json"
 
 
@@ -727,8 +745,16 @@ def _print_summary(agg: Dict[str, Any]) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="VisionCart eval harness")
     parser.add_argument(
+        "--split", choices=["test", "eval"], default=None,
+        help=(
+            "'test' → test.json (24 queries, 8 styles, pool restricted to those styles); "
+            "'eval' → Eval.json (6 queries, 2 held-out styles, full 120-product pool). "
+            "Omit to use the original eval_queries.json."
+        ),
+    )
+    parser.add_argument(
         "--gt-only", action="store_true",
-        help="Use only the 4 GT products as candidates (default: all 120 dataset products)",
+        help="Use only the 4 GT products as candidates (default: split's candidate pool)",
     )
     parser.add_argument(
         "--dataset-search", action="store_true",
@@ -748,7 +774,15 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    with open(EVAL_QUERIES_PATH) as f:
+    # Select query file based on --split
+    if args.split == "test":
+        query_path = TEST_QUERIES_PATH
+    elif args.split == "eval":
+        query_path = EVAL_SPLIT_PATH
+    else:
+        query_path = EVAL_QUERIES_PATH
+
+    with open(query_path) as f:
         eval_queries: List[Dict[str, Any]] = json.load(f)
 
     if args.style:
@@ -757,12 +791,20 @@ def main() -> None:
             print(f"No entries found for style '{args.style}'.")
             sys.exit(1)
 
-    # Pre-load full dataset for modes that need it (full-pool, dataset-search)
+    # Pre-load candidate pool for modes that need it (full-pool, dataset-search).
+    # --split test: restrict pool to the 8 test styles so held-out eval-style
+    #   products never appear in test debug output (cross-split leakage prevention).
+    # --split eval / no split: use the full 120-product pool for a realistic task.
     all_candidates: Optional[List[Dict[str, Any]]] = None
     if not args.full and not args.gt_only:
         with open(DATASET_PATH) as f:
             raw = json.load(f)
+        if args.split == "test":
+            split_styles = {e["style_label"] for e in eval_queries}
+            raw = [p for p in raw if p.get("style_label") in split_styles]
         all_candidates = [_format_product(p, f"ds_{i}") for i, p in enumerate(raw)]
+        print(f"[pool] {len(all_candidates)} candidates"
+              + (f" ({args.split} styles only)" if args.split == "test" else " (full dataset)"))
 
     results = []
     for entry in eval_queries:
