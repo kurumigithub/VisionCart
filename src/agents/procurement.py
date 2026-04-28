@@ -64,16 +64,33 @@ Example: ["handmade terracotta ceramic planter cottagecore", "rattan outdoor lan
 
 
 def _parse_queries(raw: str, num_queries: int) -> List[str]:
-    """Parse LLM response into a list of query strings, stripping code fences."""
+    """Parse LLM response into a list of query strings, stripping code fences.
+
+    Handles truncated JSON (unterminated string/array) by extracting all
+    complete quoted strings via regex before falling back to an error.
+    """
+    import re
+
     text = raw.strip()
     if text.startswith("```"):
         text = text.split("```")[1]
         if text.startswith("json"):
             text = text[4:]
-    queries = json.loads(text)
-    if not isinstance(queries, list) or not all(isinstance(q, str) for q in queries):
-        raise RuntimeError(f"LLM returned unexpected format: {raw!r}")
-    return [q.strip() for q in queries if q.strip()]
+    text = text.strip()
+
+    try:
+        queries = json.loads(text)
+        if not isinstance(queries, list) or not all(isinstance(q, str) for q in queries):
+            raise RuntimeError(f"LLM returned unexpected format: {raw!r}")
+        return [q.strip() for q in queries if q.strip()]
+    except json.JSONDecodeError:
+        # Model truncated the output — extract all complete quoted strings.
+        extracted = re.findall(r'"((?:[^"\\]|\\.)+)"', text)
+        complete = [q.strip() for q in extracted if q.strip()]
+        if complete:
+            print(f"[procurement] Warning: truncated JSON, recovered {len(complete)} queries from partial output.")
+            return complete[:num_queries]
+        raise RuntimeError(f"LLM returned unparseable output: {raw!r}")
 
 
 def _build_queries_ollama(

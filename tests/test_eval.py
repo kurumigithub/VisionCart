@@ -31,11 +31,19 @@ default (ranker, full dataset pool)
     whether the ranker accepts known-good items in isolation, independent of
     how well they rank against unrelated products.
 
---dataset-search  (requires HF_TOKEN only)
-    Uses the real procurement LLM (Qwen via HF API) to generate queries from the
-    mock stylist output, then searches the candidate pool by keyword overlap
-    instead of calling SerpAPI.  Tests end-to-end query generation + ranking with
-    no external shopping API needed.
+--dataset-search  (requires OLLAMA_MODEL or HF_TOKEN)
+    Uses the real procurement LLM (local Qwen via Ollama, or Qwen via HF API) to
+    generate queries from the mock stylist output, then searches the candidate pool
+    by keyword overlap instead of calling SerpAPI.  Tests end-to-end query
+    generation + ranking with no external shopping API needed.
+
+--dataset-search --feedback  (requires OLLAMA_MODEL or HF_TOKEN)
+    Two-pass feedback loop test.  Pass 1 is identical to --dataset-search.
+    If the ranker generates critic_feedback (poor results), Pass 2 re-runs
+    procurement with that feedback and compares recall.  Tests whether
+    _generate_critic_feedback produces actionable signals that improve queries.
+    --split test uses test.json (8 styles, restricted pool).
+    --split eval uses Eval.json (2 held-out styles, full 120-product pool).
 
 --full  (requires SERPAPI_API_KEY + HF_TOKEN)
     Patches procurement.build_queries to return the known query directly (bypassing
@@ -44,15 +52,17 @@ default (ranker, full dataset pool)
 
 Usage
 -----
-python tests/test_eval.py                                       # full-pool ranker eval (all 30)
-python tests/test_eval.py --split test                          # 8-style test split
-python tests/test_eval.py --split eval                          # 2-style held-out eval split
-python tests/test_eval.py --split test --dataset-search         # LLM queries + dataset search (test)
-python tests/test_eval.py --split eval --dataset-search         # LLM queries + dataset search (eval)
-python tests/test_eval.py --gt-only                             # GT-only ranker eval
-python tests/test_eval.py --style dark_academia                 # single style
-python tests/test_eval.py --full                                # procurement + ranker (API keys)
-python tests/test_eval.py --out results/eval.json               # save per-query results
+python tests/test_eval.py                                            # full-pool ranker eval (all 30)
+python tests/test_eval.py --split test                               # 8-style test split
+python tests/test_eval.py --split eval                               # 2-style held-out eval split
+python tests/test_eval.py --split test --dataset-search              # LLM queries + dataset search (test)
+python tests/test_eval.py --split eval --dataset-search              # LLM queries + dataset search (eval)
+python tests/test_eval.py --split test --dataset-search --feedback   # critic→procurement loop (test)
+python tests/test_eval.py --split eval --dataset-search --feedback   # critic→procurement loop (eval)
+python tests/test_eval.py --gt-only                                  # GT-only ranker eval
+python tests/test_eval.py --style dark_academia                      # single style
+python tests/test_eval.py --full                                     # procurement + ranker (API keys)
+python tests/test_eval.py --out results/eval.json                    # save per-query results
 """
 
 from __future__ import annotations
@@ -682,6 +692,143 @@ def eval_dataset_search(
     }
 
 
+# ── Dataset-search + feedback-loop evaluation ────────────────────────────────
+
+def eval_dataset_search_with_feedback(
+    entry: Dict[str, Any],
+    all_candidates: List[Dict[str, Any]],
+    num_queries: int = 3,
+    top_k_per_query: int = 10,
+) -> Dict[str, Any]:
+    """
+    Two-pass dataset-search eval that exercises the critic→procurement feedback loop.
+
+    Pass 1 is identical to eval_dataset_search.  If the ranker emits critic_feedback
+    (i.e. _generate_critic_feedback fired on the 4 signals), Pass 2 re-runs
+    procurement with that feedback injected into the query-generation prompt and
+    compares recall.  Skips Pass 2 when Pass 1 results are already satisfactory.
+
+    Requires OLLAMA_MODEL env var (local Qwen) or HF_TOKEN (HF Inference API).
+    """
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(REPO_ROOT / ".env")
+    except Exception:
+        pass
+
+    from agents.procurement import StylistOutput, build_queries
+
+    style_label = entry["style_label"]
+    query       = entry["query"]
+    gt_products = entry["ground_truth"]
+
+    stylist_dict = make_stylist_output(style_label)
+    style = StylistOutput(
+        style_profile=stylist_dict["style_profile"],
+        aesthetic=stylist_dict["aesthetic"],
+        colors=stylist_dict["colors"],
+        materials=stylist_dict["materials"],
+    )
+
+    def _run_pass(critic_feedback: Optional[str], pass_label: str) -> Dict[str, Any]:
+        print(f"\n[dataset-search+feedback] {pass_label} — '{style_label}' / '{query}'")
+        if critic_feedback:
+            print(f"[dataset-search+feedback] critic_feedback → procurement:\n  {critic_feedback}")
+
+        generated_queries = build_queries(
+            style, num_queries=num_queries, critic_feedback=critic_feedback
+        )
+        print(f"[dataset-search+feedback] LLM queries: {generated_queries}")
+
+        seen_ids: set = set()
+        candidates: List[Dict[str, Any]] = []
+        retrieval_log: List[Dict[str, Any]] = []
+
+        for q in generated_queries:
+            hits = _search_dataset(q, all_candidates, top_k=top_k_per_query)
+            new_hits = [h for h in hits if h["product_id"] not in seen_ids]
+            for h in new_hits:
+                seen_ids.add(h["product_id"])
+                candidates.append(h)
+            retrieval_log.append({"query": q, "hits": len(hits), "new": len(new_hits)})
+            print(f"[dataset-search+feedback]   '{q}' → {len(hits)} hits, {len(new_hits)} new")
+
+        print(f"[dataset-search+feedback] Total candidates for ranker: {len(candidates)}")
+
+        gt_names = {p["product_name"].lower() for p in gt_products}
+        gt_ids   = {c["product_id"] for c in candidates if c["product_name"].lower() in gt_names}
+
+        if not candidates:
+            return {
+                "generated_queries": generated_queries,
+                "retrieval_log":     retrieval_log,
+                "accepted_gt":       0,
+                "total_retrieved":   0,
+                "total_accepted":    0,
+                "recall":            0.0,
+                "gt_ranks":          [],
+                "ranked_products":   [],
+                "rejected":          [],
+                "critic_feedback":   None,
+            }
+
+        style_profile = make_style_profile(style_label, query)
+        state = {
+            "style_profile":      style_profile,
+            "candidate_products": candidates,
+        }
+        result   = ranker_run(state)
+        rc_out   = result.get("ranker_critic_output", {})
+        accepted = rc_out.get("accepted_products", [])
+        acc_ids  = {p["product_id"] for p in accepted}
+
+        accepted_gt = acc_ids & gt_ids
+        recall      = len(accepted_gt) / len(gt_products) if gt_products else 0.0
+        rank_map    = {p["product_id"]: p["rank"] for p in accepted}
+        gt_ranks    = sorted([rank_map[pid] for pid in accepted_gt if pid in rank_map])
+
+        return {
+            "generated_queries": generated_queries,
+            "retrieval_log":     retrieval_log,
+            "accepted_gt":       len(accepted_gt),
+            "total_retrieved":   len(candidates),
+            "total_accepted":    len(accepted),
+            "recall":            round(recall, 4),
+            "gt_ranks":          gt_ranks,
+            "ranked_products":   result.get("ranked_products", []),
+            "rejected":          result.get("rejected_products", []),
+            "critic_feedback":   result.get("critic_feedback"),
+        }
+
+    pass1    = _run_pass(critic_feedback=None, pass_label="Pass 1 (initial)")
+    feedback = pass1.get("critic_feedback")
+
+    pass2: Optional[Dict[str, Any]] = None
+    if feedback:
+        print(f"\n[dataset-search+feedback] Critic fired → running Pass 2 with feedback...")
+        pass2 = _run_pass(critic_feedback=feedback, pass_label="Pass 2 (with feedback)")
+    else:
+        print(f"\n[dataset-search+feedback] No feedback generated — Pass 1 satisfactory, skipping Pass 2.")
+
+    best_recall = max(pass1["recall"], (pass2 or {}).get("recall", 0.0))
+    final_pass  = pass2 if pass2 is not None else pass1
+
+    return {
+        "style_label":     style_label,
+        "query":           query,
+        "total_gt":        len(gt_products),
+        "pass1":           pass1,
+        "pass2":           pass2,
+        "feedback_fired":  feedback is not None,
+        # Top-level fields used by _aggregate and _print_entry_result
+        "recall":          best_recall,
+        "accepted_gt":     final_pass["accepted_gt"],
+        "gt_ranks":        final_pass["gt_ranks"],
+        "ranked_products": final_pass["ranked_products"],
+        "rejected":        final_pass["rejected"],
+    }
+
+
 # ── Reporting helpers ─────────────────────────────────────────────────────────
 
 def _print_entry_result(r: Dict[str, Any], mode: str) -> None:
@@ -696,6 +843,28 @@ def _print_entry_result(r: Dict[str, Any], mode: str) -> None:
         print(f"  retrieved={r['total_retrieved']}  accepted={r['total_accepted']}"
               f"  accepted_gt={r['accepted_gt']}/{r['total_gt']}"
               f"  recall={r['recall']:.2f}  gt_ranks={r['gt_ranks']}")
+    elif mode == "dataset-search+feedback":
+        p1 = r.get("pass1", {})
+        p2 = r.get("pass2")
+        print(f"  Pass 1 queries: {p1.get('generated_queries', [])}")
+        for log in p1.get("retrieval_log", []):
+            print(f"    '{log['query']}' → {log['hits']} hits, {log['new']} new")
+        print(f"  Pass 1: retrieved={p1.get('total_retrieved')}  accepted={p1.get('total_accepted')}"
+              f"  accepted_gt={p1.get('accepted_gt')}/{r['total_gt']}"
+              f"  recall={p1.get('recall', 0):.2f}  gt_ranks={p1.get('gt_ranks', [])}")
+        if r.get("feedback_fired"):
+            print(f"  Feedback → procurement: {p1.get('critic_feedback', '')}")
+            if p2:
+                print(f"  Pass 2 queries: {p2.get('generated_queries', [])}")
+                for log in p2.get("retrieval_log", []):
+                    print(f"    '{log['query']}' → {log['hits']} hits, {log['new']} new")
+                print(f"  Pass 2: retrieved={p2.get('total_retrieved')}  accepted={p2.get('total_accepted')}"
+                      f"  accepted_gt={p2.get('accepted_gt')}/{r['total_gt']}"
+                      f"  recall={p2.get('recall', 0):.2f}  gt_ranks={p2.get('gt_ranks', [])}")
+                delta = (p2.get("recall") or 0.0) - (p1.get("recall") or 0.0)
+                print(f"  Recall delta (pass2 − pass1): {delta:+.2f}")
+        else:
+            print(f"  No feedback generated — pass 1 results satisfactory.")
     elif mode == "ranker (full pool)":
         print(f"  pool={r['pool_size']}  accepted_gt={r['accepted_gt']}/{r['total_gt']}"
               f"  total_accepted={r['total_accepted']}  recall={r['recall']:.2f}"
@@ -758,7 +927,16 @@ def main() -> None:
     )
     parser.add_argument(
         "--dataset-search", action="store_true",
-        help="LLM query generation + local dataset keyword search (requires HF_TOKEN only)",
+        help="LLM query generation + local dataset keyword search (requires OLLAMA_MODEL or HF_TOKEN)",
+    )
+    parser.add_argument(
+        "--feedback", action="store_true",
+        help=(
+            "With --dataset-search: run two-pass feedback loop — "
+            "Pass 1 generates queries, ranker emits critic_feedback, "
+            "Pass 2 re-runs procurement with that feedback and compares recall. "
+            "--split test uses test.json; --split eval uses Eval.json."
+        ),
     )
     parser.add_argument(
         "--full", action="store_true",
@@ -811,6 +989,9 @@ def main() -> None:
         if args.full:
             mode = "procurement+ranker"
             r = eval_full_pipeline(entry)
+        elif args.dataset_search and args.feedback:
+            mode = "dataset-search+feedback"
+            r = eval_dataset_search_with_feedback(entry, all_candidates)
         elif args.dataset_search:
             mode = "dataset-search"
             r = eval_dataset_search(entry, all_candidates)
