@@ -14,18 +14,24 @@ from transformers import (
 load_dotenv()
 MODEL_ID = "Qwen/Qwen2.5-VL-7B-Instruct"
 
-if not os.environ.get("HF_TOKEN"):
-    print("HF_TOKEN not found in environment. Downloads may be slow or fail.")
+_model = None
+_processor = None
 
-# 3. Load Model and Processor
-# In src/agents/stylist.py (When running on Colab)
-model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-    MODEL_ID,
-    torch_dtype="auto", # Full precision for better "vibe" detection
-    device_map="auto",
-    trust_remote_code=True
-)
-processor = AutoProcessor.from_pretrained(MODEL_ID)
+
+def _load_model():
+    """Lazy-load Qwen2.5-VL-7B on first call. Safe to import on non-GPU machines."""
+    global _model, _processor
+    if _model is None:
+        if not os.environ.get("HF_TOKEN"):
+            print("HF_TOKEN not found in environment. Downloads may be slow or fail.")
+        _model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+            MODEL_ID,
+            torch_dtype="auto",
+            device_map="auto",
+            trust_remote_code=True,
+        )
+        _processor = AutoProcessor.from_pretrained(MODEL_ID)
+    return _model, _processor
 
 def run(state: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -72,14 +78,15 @@ def run(state: Dict[str, Any]) -> Dict[str, Any]:
     ]
 
     # Generate Output
+    model, processor = _load_model()
     text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
     inputs = processor(
-        text=[text], 
-        images=images, 
-        padding=True, 
+        text=[text],
+        images=images,
+        padding=True,
         return_tensors="pt"
     ).to(model.device)
-    
+
     generated_ids = model.generate(**inputs, max_new_tokens=1024)
     output_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
 

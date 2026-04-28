@@ -312,6 +312,38 @@ STYLE_DEFINITIONS: Dict[str, Dict[str, Any]] = {
 }
 
 
+# ── Dataset-derived product terms (Fix 3) ────────────────────────────────────
+# Loaded once and merged into every style_profile so keyword matching covers
+# product-category nouns ("blazer", "satchel", "credenza") that STYLE_DEFINITIONS
+# style_keywords currently miss.
+
+_STYLE_PRODUCT_TERMS: Dict[str, List[str]] = {}
+
+
+def _load_product_terms() -> Dict[str, List[str]]:
+    """Extract per-style product_terms and style_terms from dataset.json."""
+    global _STYLE_PRODUCT_TERMS
+    if _STYLE_PRODUCT_TERMS:
+        return _STYLE_PRODUCT_TERMS
+    try:
+        with open(DATASET_PATH) as f:
+            products = json.load(f)
+        per_style: Dict[str, set] = {}
+        for p in products:
+            style = p.get("style_label", "")
+            if not style:
+                continue
+            bucket = per_style.setdefault(style, set())
+            for t in p.get("product_terms", []):
+                bucket.add(t.lower())
+            for t in p.get("style_terms", []):
+                bucket.add(t.lower())
+        _STYLE_PRODUCT_TERMS = {s: sorted(t) for s, t in per_style.items()}
+    except Exception:
+        pass
+    return _STYLE_PRODUCT_TERMS
+
+
 # ── Mock builders ─────────────────────────────────────────────────────────────
 
 def make_style_profile(style_label: str, query_terms: List[str], query: str = "") -> Dict[str, Any]:
@@ -320,6 +352,8 @@ def make_style_profile(style_label: str, query_terms: List[str], query: str = ""
 
     The query_terms are merged into style_keywords so the ranker's
     keyword_overlap_score rewards products that match the original search query.
+    Product-category terms from dataset.json are also merged in (Fix 3) so
+    nouns like "satchel", "credenza", and "sneaker" score correctly.
 
     style_summary is left empty intentionally: ranker_critic._compute_scores
     extends the keyword pool with every word in the summary, which dilutes
@@ -329,7 +363,8 @@ def make_style_profile(style_label: str, query_terms: List[str], query: str = ""
     """
     defn = STYLE_DEFINITIONS.get(style_label, {})
     base_kw = list(defn.get("style_keywords", []))
-    merged_kw = list(dict.fromkeys(base_kw + [t.lower() for t in query_terms]))
+    product_terms = _load_product_terms().get(style_label, [])
+    merged_kw = list(dict.fromkeys(base_kw + product_terms + [t.lower() for t in query_terms]))
     return {
         "board_id":      f"{style_label}__{query.replace(' ', '_')}",
         "style_summary": "",
@@ -735,6 +770,52 @@ def _print_summary(agg: Dict[str, Any]) -> None:
     print("=" * 60)
 
 
+# ── Eval log ─────────────────────────────────────────────────────────────────
+
+LOG_PATH = REPO_ROOT / "results" / "eval_log.md"
+
+
+def _build_log_section(agg: Dict[str, Any], mode: str, args: Any) -> str:
+    from datetime import datetime
+    ts         = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    style_note = f" | style: {args.style}" if getattr(args, "style", None) else ""
+    header = (
+        f"## {ts} — test_eval.py"
+        f" | mode: {mode}"
+        f"{style_note}"
+        f" | queries: {agg['total_queries']}"
+    )
+
+    summary_rows = [
+        "| Metric | Value |",
+        "|--------|-------|",
+        f"| Total queries | {agg['total_queries']} |",
+        f"| Perfect recall | {agg['perfect_recall']} / {agg['total_queries']} |",
+        f"| Mean recall | {agg['mean_recall']:.4f} |",
+    ]
+
+    style_rows = [
+        "",
+        "**Recall by style**",
+        "",
+        "| Style | Recall |",
+        "|-------|--------|",
+    ]
+    for style, rec in sorted(agg["style_recalls"].items()):
+        style_rows.append(f"| {style} | {rec:.4f} |")
+
+    lines = [header, ""] + summary_rows + style_rows + ["", "---", ""]
+    return "\n".join(lines)
+
+
+def _append_eval_log(agg: Dict[str, Any], mode: str, args: Any) -> None:
+    LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    section = _build_log_section(agg, mode, args)
+    with open(LOG_PATH, "a") as f:
+        f.write(section)
+    print(f"\nResults appended to {LOG_PATH}")
+
+
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -797,6 +878,7 @@ def main() -> None:
 
     agg = _aggregate(results)
     _print_summary(agg)
+    _append_eval_log(agg, mode, args)
 
     if args.out:
         out_path = Path(args.out)

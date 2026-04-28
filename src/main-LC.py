@@ -7,6 +7,38 @@ from src.utils import pinterest_crawler
 from src.graph.state import AgentState
 from src.agents import stylist, procurement, ranker_critic, output
 
+
+def _style_profile_from_stylist(stylist_output: Dict[str, Any]) -> Dict[str, Any]:
+    """Build a ranker-compatible style_profile dict from stylist_output.
+
+    procurement.run() returns style_profile as a plain narrative string, which
+    ranker_critic._ensure_dict() cannot parse and silently returns {}.  This
+    function builds the structured dict the ranker actually needs from the
+    richer stylist_output that is already in state.
+    """
+    aesthetic = stylist_output.get("aesthetic") or []
+    colors    = stylist_output.get("colors")    or []
+    materials = stylist_output.get("materials") or []
+    narrative = stylist_output.get("style_profile", "")
+    return {
+        "board_id":       "",
+        "style_summary":  narrative,
+        "style_keywords": list(dict.fromkeys(aesthetic + colors)),
+        "style_elements": aesthetic,
+        "color_palette": {
+            "dominant": colors,
+            "accent":   [],
+            "avoid":    [],
+        },
+        "materials": {
+            "preferred": materials,
+            "avoid":     [],
+        },
+        "constraints":    {"must_avoid": []},
+        "board_embedding": [],
+    }
+
+
 def get_image_paths_from_url(board_url: str, max_images: int = 5) -> List[str]:
     """
     Crawls a Pinterest board, downloads images to the data/ folder,
@@ -66,7 +98,7 @@ def run_vision_cart(board_url: str, max_images: int = 5):
     procurement_data = json.loads(procurement_raw)
     state["candidate_products"] = procurement_data["procurement_products"]
     state["procurement_queries"] = procurement_data["procurement_queries"]
-    state["style_profile"] = procurement_data["style_profile"]
+    state["style_profile"] = _style_profile_from_stylist(state["stylist_output"])
 
     print("ranker/critic evaluation")
     ranker_results = ranker_critic.run(state)
@@ -85,24 +117,18 @@ def run_vision_cart(board_url: str, max_images: int = 5):
     return state
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser(description="VisionCart: Pinterest-to-Retail Pipeline")
-    # parser.add_argument(
-    #     "url", 
-    #     help="The Pinterest board URL to analyze"
-    # )
-    
-    # args = parser.parse_args()
-    
-    # try:
-    #     run_vision_cart(args.url)
-    # except Exception as e:
-    #     print(f"error in pipeline: {e}")
-    #     sys.exit(1)
-
-    # For testing purposes, you can hardcode a Pinterest board URL here:
-    test_url = "https://www.pinterest.com/aesthetics/spring-wallpapers/"
+    parser = argparse.ArgumentParser(description="VisionCart: Pinterest-to-Retail Pipeline")
+    parser.add_argument(
+        "url",
+        help="The Pinterest board URL to analyze",
+    )
+    parser.add_argument(
+        "--max-images", type=int, default=5,
+        help="Maximum images to download from the board (default: 5)",
+    )
+    args = parser.parse_args()
     try:
-        run_vision_cart(test_url, max_images=1)
+        run_vision_cart(args.url, args.max_images)
     except Exception as e:
         print(f"error in pipeline: {e}")
         sys.exit(1)

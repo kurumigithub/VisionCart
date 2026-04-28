@@ -9,6 +9,37 @@ from src.graph.state import AgentState
 from src.agents import stylist, procurement, ranker_critic, output
 from src.utils import pinterest_crawler
 
+
+def _style_profile_from_stylist(stylist_output: Dict[str, Any]) -> Dict[str, Any]:
+    """Build a ranker-compatible style_profile dict from stylist_output.
+
+    procurement.run() returns style_profile as a plain narrative string, which
+    ranker_critic._ensure_dict() cannot parse and silently returns {}.  This
+    function builds the structured dict the ranker actually needs from the
+    richer stylist_output that is already in state.
+    """
+    aesthetic = stylist_output.get("aesthetic") or []
+    colors    = stylist_output.get("colors")    or []
+    materials = stylist_output.get("materials") or []
+    narrative = stylist_output.get("style_profile", "")
+    return {
+        "board_id":       "",
+        "style_summary":  narrative,
+        "style_keywords": list(dict.fromkeys(aesthetic + colors)),
+        "style_elements": aesthetic,
+        "color_palette": {
+            "dominant": colors,
+            "accent":   [],
+            "avoid":    [],
+        },
+        "materials": {
+            "preferred": materials,
+            "avoid":     [],
+        },
+        "constraints":    {"must_avoid": []},
+        "board_embedding": [],
+    }
+
 # ─── Node Functions ──────────────────────────────────────────────────
 
 def stylist_node(state: AgentState):
@@ -26,8 +57,8 @@ def procurement_node(state: AgentState):
     return {
         "candidate_products": procurement_data["procurement_products"],
         "procurement_queries": procurement_data["procurement_queries"],
-        "style_profile": procurement_data["style_profile"],
-        "iterations": current_iter + 1
+        "style_profile": _style_profile_from_stylist(state["stylist_output"]),
+        "iterations": current_iter + 1,
     }
 
 def critic_node(state: AgentState):
