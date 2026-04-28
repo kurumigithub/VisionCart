@@ -1,20 +1,10 @@
-from transformers import pipeline
+from __future__ import annotations
 
-_pipe = None
-
-def get_pipe():
-    global _pipe
-    if _pipe is None:
-        _pipe = pipeline(
-            "text-generation",
-            model="Qwen/Qwen2.5-3B-Instruct",
-            device_map="auto",
-        )
-    return _pipe
+import os
+from typing import Any, Dict
 
 
-SYSTEM_PROMPT = """
-You are a personal shopping assistant for a visual-first retail app.
+SYSTEM_PROMPT = """You are a personal shopping assistant for a visual-first retail app.
 Your job is to translate AI-ranked product results into a warm,
 concise, human-readable summary that explains why the results
 match the user's aesthetic and helps them make a decision.
@@ -31,7 +21,6 @@ Do not use filler phrases like "Great news!" or "I found some products."
 
 
 def format_products_for_prompt(ranked_products: list) -> str:
-    """Convert ranked product list into a readable block for the prompt."""
     lines = []
     for i, p in enumerate(ranked_products[:5], 1):
         tags = p.get("tags", [])
@@ -47,7 +36,6 @@ def format_products_for_prompt(ranked_products: list) -> str:
 
 
 def build_output_products(ranked_products: list) -> list:
-    """Trim ranked_products to the top 5 with only UI-relevant fields."""
     results = []
     for p in ranked_products[:5]:
         results.append({
@@ -61,34 +49,58 @@ def build_output_products(ranked_products: list) -> list:
     return results
 
 
-def run(state: dict) -> dict:
+def _call_ollama(system: str, user: str) -> str:
+    import re
+    import requests
+
+    model    = os.environ.get("OLLAMA_MODEL", "qwen2.5:7b")
+    base_url = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user",   "content": user},
+        ],
+        "stream": False,
+        "think":  False,
+        "options": {"num_predict": 1024},
+    }
+    resp = requests.post(f"{base_url}/api/chat", json=payload, timeout=120)
+    resp.raise_for_status()
+    raw = resp.json()["message"].get("content") or resp.json()["message"].get("thinking") or ""
+    # Strip any residual <think> blocks from models that ignore think:false
+    return re.sub(r"<think>.*?</think>", "", raw, flags=re.DOTALL).strip()
+
+
+def run(state: Dict[str, Any]) -> Dict[str, Any]:
     """
-    LangGraph node: generate human-readable output from ranked results.
+    LangGraph node: generate human-readable output from ranked results via Ollama.
 
     Reads from state:
-        - style_profile (str): text description of the user's aesthetic
-        - ranked_products (list): products sorted by similarity score
-        - critic_notes (str, optional): any rejections or flags from the critic
+        style_profile (str): text description of the user's aesthetic
+        ranked_products (list): products sorted by similarity score
+        critic_notes (str, optional): any rejections or flags from the critic
 
     Writes to state:
-        - output_text (str): narrative summary for the chat interface
-        - output_products (list): top 3-5 products for UI card rendering
+        output_text (str): narrative summary for the chat interface
+        output_products (list): top 3-5 products for UI card rendering
     """
-    style_profile = state.get("style_profile", "")
+    style_profile  = state.get("style_profile", "")
     ranked_products = state.get("ranked_products", [])
-    critic_notes = state.get("critic_notes", "")
+    critic_notes   = state.get("critic_notes", "")
 
-    print(f"\n[output] ── run() ────────────────────────────────────")
-    print(f"[output] ranked_products count: {len(ranked_products)}")
-    print(f"[output] style_profile length: {len(style_profile)} chars")
-    print(f"[output] critic_notes: {critic_notes!r}")
+    model = os.environ.get("OLLAMA_MODEL", "qwen2.5:7b")
+    print(f"\n[output] ── run() ── model={model}")
+    print(f"[output] ranked_products: {len(ranked_products)}  style_profile: {len(style_profile)} chars")
 
     if not style_profile:
         return {
             "output_text": (
                 "We couldn't determine your style profile. "
                 "Try adding more images to your board."
-            )
+            ),
+            "output_products": [],
         }
 
     if not ranked_products:
@@ -96,47 +108,32 @@ def run(state: dict) -> dict:
             "output_text": (
                 "We couldn't find products that matched your style profile. "
                 "Try adding more images to your board."
-            )
+            ),
+            "output_products": [],
         }
 
     products_block = format_products_for_prompt(ranked_products)
     total = len(ranked_products)
     shown = min(total, 5)
     count_note = (
-        f"(Showing top {shown} of {total} results)"
+        f"Showing top {shown} of {total} results"
         if total > shown
-        else f"({total} result{'s' if total != 1 else ''} found)"
+        else f"{total} result{'s' if total != 1 else ''} found"
     )
 
-    user_message = f"""Style profile: {style_profile}
+    user_message = (
+        f"Style profile: {style_profile}\n\n"
+        f"Ranked products ({count_note}):\n{products_block}"
+        + (f"\n\nCritic notes: {critic_notes}" if critic_notes else "")
+        + "\n\nPlease generate the user-facing summary."
+    )
 
-Ranked products {count_note}:
-{products_block}
-{f"{chr(10)}Critic notes: {critic_notes}" if critic_notes else ""}
+    print(f"\n[output] Sending to Ollama...")
+    output_text = _call_ollama(SYSTEM_PROMPT, user_message)
 
-Please generate the user-facing summary."""
-
-    print(f"\n[output] ── LLM prompt ─────────────────────────────")
-    print(user_message)
-    print(f"[output] ────────────────────────────────────────────")
-
-    messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": user_message},
-    ]
-
-    pipe = get_pipe()
-    result = pipe(messages, max_new_tokens=1024)
-    output_text = result[0]["generated_text"][-1]["content"]
-
-    print(f"\n[output] ── LLM response ────────────────────────────")
+    print(f"\n[output] ── LLM response ─────────────────────────────")
     print(output_text)
     print(f"[output] ─────────────────────────────────────────────")
 
     output_products = build_output_products(ranked_products)
-
-    print(f"\n[output] output_products ({len(output_products)} items):")
-    for p in output_products:
-        print(f"  {p['name']}  score={p['score']}  price={p['price']}  tags={p['tags']}")
-
     return {"output_text": output_text, "output_products": output_products}

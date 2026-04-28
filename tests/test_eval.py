@@ -950,6 +950,14 @@ def main() -> None:
         "--out", metavar="PATH",
         help="Write per-query results to this JSON file",
     )
+    parser.add_argument(
+        "--output", action="store_true",
+        help=(
+            "After ranking, pipe results through the output agent (Qwen2.5-3B) "
+            "and print the human-readable summary. Works with any ranking mode. "
+            "Loads the model once and reuses it across all entries."
+        ),
+    )
     args = parser.parse_args()
 
     # Select query file based on --split
@@ -984,6 +992,13 @@ def main() -> None:
         print(f"[pool] {len(all_candidates)} candidates"
               + (f" ({args.split} styles only)" if args.split == "test" else " (full dataset)"))
 
+    # Lazy-load the output agent only if --output is requested (model load is slow).
+    output_run: Optional[Any] = None
+    if args.output:
+        from agents.output import run as _output_run
+        output_run = _output_run
+        print("[output] Output agent loaded (Qwen2.5-3B). Will run after each entry.\n")
+
     results = []
     for entry in eval_queries:
         if args.full:
@@ -1003,6 +1018,21 @@ def main() -> None:
             r = eval_ranker_full_pool(entry, all_candidates)
 
         _print_entry_result(r, mode)
+
+        if output_run is not None:
+            defn = STYLE_DEFINITIONS.get(entry["style_label"], {})
+            style_profile_str = defn.get("style_summary", entry["style_label"])
+            out = output_run({
+                "style_profile":  style_profile_str,
+                "ranked_products": r.get("ranked_products", []),
+            })
+            print(f"\n{'='*60}")
+            print(f"OUTPUT AGENT — {entry['style_label']} / '{entry['query']}'")
+            print(f"{'='*60}")
+            print(out.get("output_text", "(no output)"))
+            print(f"{'='*60}\n")
+            r["output_text"] = out.get("output_text", "")
+
         results.append(r)
 
     agg = _aggregate(results)
