@@ -5,8 +5,6 @@ import os
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-from huggingface_hub import InferenceClient
-
 from tools.api import serpapi_google_shopping_search
 
 
@@ -65,27 +63,73 @@ Return a JSON array of strings and nothing else. No explanation, no markdown.
 Example: ["handmade terracotta ceramic planter cottagecore", "rattan outdoor lantern boho warm patio"]"""
 
 
-def build_queries(
+def _parse_queries(raw: str, num_queries: int) -> List[str]:
+    """Parse LLM response into a list of query strings, stripping code fences.
+
+    Handles truncated JSON (unterminated string/array) by extracting all
+    complete quoted strings via regex before falling back to an error.
+    """
+    import re
+
+    text = raw.strip()
+    if text.startswith("```"):
+        text = text.split("```")[1]
+        if text.startswith("json"):
+            text = text[4:]
+    text = text.strip()
+
+    try:
+        queries = json.loads(text)
+        if not isinstance(queries, list) or not all(isinstance(q, str) for q in queries):
+            raise RuntimeError(f"LLM returned unexpected format: {raw!r}")
+        return [q.strip() for q in queries if q.strip()]
+    except json.JSONDecodeError:
+        # Model truncated the output — extract all complete quoted strings.
+        extracted = re.findall(r'"((?:[^"\\]|\\.)+)"', text)
+        complete = [q.strip() for q in extracted if q.strip()]
+        if complete:
+            print(f"[procurement] Warning: truncated JSON, recovered {len(complete)} queries from partial output.")
+            return complete[:num_queries]
+        raise RuntimeError(f"LLM returned unparseable output: {raw!r}")
+
+
+def _build_queries_ollama(
     style: StylistOutput,
     num_queries: int,
-    critic_feedback: Optional[str] = None,
+    critic_feedback: Optional[str],
 ) -> List[str]:
-    """
-    Uses one HuggingFace Inference API call (Qwen2.5-7B-Instruct) to determine
-    which product categories suit the aesthetic and generate one search query
-    per category.
+    import requests as _requests
 
-    If critic_feedback is provided (from the critic agent on a retry pass),
-    the LLM steers away from previously poor-performing query angles.
+    model = os.environ.get("OLLAMA_MODEL", "qwen2.5:7b")
+    base_url = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+    print(f"[procurement] Calling local ollama (model: {model})...")
+    if critic_feedback:
+        print(f"[procurement] Retry pass — critic feedback:\n  {critic_feedback}")
 
-    Raises RuntimeError if HF_TOKEN is not set or the API call fails.
-    """
-    hf_token = os.environ.get("HF_TOKEN")
-    if not hf_token:
-        raise RuntimeError(
-            "HF_TOKEN is not set. "
-            "Create a free token at huggingface.co/settings/tokens and add it to .env."
-        )
+    payload = {
+        "model": model,
+        "messages": [{"role": "user", "content": _build_query_prompt(style, num_queries, critic_feedback)}],
+        "stream": False,
+        "options": {"num_predict": 512},
+    }
+    try:
+        resp = _requests.post(f"{base_url}/api/chat", json=payload, timeout=120)
+        resp.raise_for_status()
+    except Exception as e:
+        raise RuntimeError(f"Ollama call failed: {e}")
+
+    raw = resp.json()["message"]["content"]
+    print(f"[procurement] Query generation complete. Raw response: {raw}")
+    return _parse_queries(raw, num_queries)
+
+
+def _build_queries_hf(
+    style: StylistOutput,
+    num_queries: int,
+    critic_feedback: Optional[str],
+    hf_token: str,
+) -> List[str]:
+    from huggingface_hub import InferenceClient
 
     model = "Qwen/Qwen2.5-7B-Instruct"
     print(f"[procurement] Calling HuggingFace Inference API (model: {model})...")
@@ -101,22 +145,31 @@ def build_queries(
     except Exception as e:
         raise RuntimeError(f"HuggingFace Inference API call failed: {e}")
 
-    raw = response.choices[0].message.content.strip()
+    raw = response.choices[0].message.content
     print(f"[procurement] Query generation complete. Raw response: {raw}")
+    return _parse_queries(raw, num_queries)
 
-    # Strip markdown code fences if the model wrapped the output
-    if raw.startswith("```"):
-        raw = raw.split("```")[1]
-        if raw.startswith("json"):
-            raw = raw[4:]
 
-    queries = json.loads(raw)
-    if not isinstance(queries, list) or not all(isinstance(q, str) for q in queries):
-        raise RuntimeError(
-            f"LLM returned an unexpected format for queries: {raw!r}"
-        )
+def build_queries(
+    style: StylistOutput,
+    num_queries: int,
+    critic_feedback: Optional[str] = None,
+) -> List[str]:
+    """
+    Generate search queries from a style profile using an LLM.
 
-    return [q.strip() for q in queries if q.strip()]
+    Backend selection (in priority order):
+      1. OLLAMA_MODEL env var set  → use local ollama
+      2. HF_TOKEN env var set      → use HuggingFace Inference API (Qwen2.5-7B-Instruct)
+      3. Neither set               → use local ollama with default model (qwen2.5:7b)
+
+    Override the ollama host with OLLAMA_HOST (default: http://localhost:11434).
+    Override the ollama model with OLLAMA_MODEL (default: qwen2.5:7b).
+    """
+    use_ollama = bool(os.environ.get("OLLAMA_MODEL")) or not os.environ.get("HF_TOKEN")
+    if use_ollama:
+        return _build_queries_ollama(style, num_queries, critic_feedback)
+    return _build_queries_hf(style, num_queries, critic_feedback, os.environ["HF_TOKEN"])
 
 
 def _shape_products(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

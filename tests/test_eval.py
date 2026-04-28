@@ -1,28 +1,49 @@
 """
 VisionCart evaluation harness — procurement + ranker/critic, no stylist needed.
 
-Loads dataset/eval_queries.json (30 entries: one per unique style_label+query pair,
-each with 4 ground-truth products).  Builds mock stylist outputs directly from the
-style_label and query_terms so the stylist agent is bypassed entirely.
+Loads eval_queries.json (30 entries), test_queries.json (24 entries, 8 styles),
+or eval_queries_split.json (6 entries, 2 held-out styles) depending on --split.
+Builds mock stylist outputs directly from the style_label so the stylist agent
+is bypassed entirely.
+
+Split strategy (--split)
+------------------------
+(no flag)  Full eval_queries.json — 30 queries across all 10 styles.
+--split test
+    test_queries.json — 24 queries, 8 styles.  Candidate pool is restricted to
+    products from those 8 styles (96 products) so held-out eval-style products
+    never appear in test debug output, eliminating cross-split leakage.
+--split eval
+    eval_queries_split.json — 6 queries, 2 held-out styles (quiet_luxury,
+    dark_moody_organic).  Candidate pool is the full 120-product database so
+    the model must generalise against the entire catalogue.  Run sparingly to
+    avoid overfitting the prompts to the held-out styles.
 
 Evaluation modes
 ----------------
 default (ranker, full dataset pool)
-    Uses all 120 dataset products as the candidate pool.  Tests whether the
-    ranker can correctly identify the 4 ground-truth products out of all 120.
-    This is the closest simulation of "does the model grab the right items from
-    the database".  No API keys required.
+    Uses the split's candidate pool as the candidate set.  Tests whether the
+    ranker can correctly identify the 4 ground-truth products out of the pool.
+    No API keys required.
 
 --gt-only
     Uses only the 4 ground-truth products as candidates.  Useful for checking
     whether the ranker accepts known-good items in isolation, independent of
     how well they rank against unrelated products.
 
---dataset-search  (requires HF_TOKEN only)
-    Uses the real procurement LLM (Qwen via HF API) to generate queries from the
-    mock stylist output, then searches the 120-product dataset by keyword overlap
-    instead of calling SerpAPI.  Tests end-to-end query generation + ranking with
-    no external shopping API needed.
+--dataset-search  (requires OLLAMA_MODEL or HF_TOKEN)
+    Uses the real procurement LLM (local Qwen via Ollama, or Qwen via HF API) to
+    generate queries from the mock stylist output, then searches the candidate pool
+    by keyword overlap instead of calling SerpAPI.  Tests end-to-end query
+    generation + ranking with no external shopping API needed.
+
+--dataset-search --feedback  (requires OLLAMA_MODEL or HF_TOKEN)
+    Two-pass feedback loop test.  Pass 1 is identical to --dataset-search.
+    If the ranker generates critic_feedback (poor results), Pass 2 re-runs
+    procurement with that feedback and compares recall.  Tests whether
+    _generate_critic_feedback produces actionable signals that improve queries.
+    --split test uses test.json (8 styles, restricted pool).
+    --split eval uses Eval.json (2 held-out styles, full 120-product pool).
 
 --full  (requires SERPAPI_API_KEY + HF_TOKEN)
     Patches procurement.build_queries to return the known query directly (bypassing
@@ -31,12 +52,17 @@ default (ranker, full dataset pool)
 
 Usage
 -----
-python tests/test_eval.py                            # full-pool ranker eval
-python tests/test_eval.py --gt-only                  # GT-only ranker eval
-python tests/test_eval.py --dataset-search           # LLM queries + dataset search
-python tests/test_eval.py --style dark_academia      # single style
-python tests/test_eval.py --full                     # procurement + ranker (API keys)
-python tests/test_eval.py --out results/eval.json    # save per-query results
+python tests/test_eval.py                                            # full-pool ranker eval (all 30)
+python tests/test_eval.py --split test                               # 8-style test split
+python tests/test_eval.py --split eval                               # 2-style held-out eval split
+python tests/test_eval.py --split test --dataset-search              # LLM queries + dataset search (test)
+python tests/test_eval.py --split eval --dataset-search              # LLM queries + dataset search (eval)
+python tests/test_eval.py --split test --dataset-search --feedback   # critic→procurement loop (test)
+python tests/test_eval.py --split eval --dataset-search --feedback   # critic→procurement loop (eval)
+python tests/test_eval.py --gt-only                                  # GT-only ranker eval
+python tests/test_eval.py --style dark_academia                      # single style
+python tests/test_eval.py --full                                     # procurement + ranker (API keys)
+python tests/test_eval.py --out results/eval.json                    # save per-query results
 """
 
 from __future__ import annotations
@@ -59,6 +85,8 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 from agents.ranker_critic import run as ranker_run  # noqa: E402
 
 EVAL_QUERIES_PATH  = REPO_ROOT / "dataset" / "eval_queries.json"
+TEST_QUERIES_PATH  = REPO_ROOT / "dataset" / "test.json"
+EVAL_SPLIT_PATH    = REPO_ROOT / "dataset" / "Eval.json"
 DATASET_PATH       = REPO_ROOT / "dataset" / "dataset.json"
 
 
@@ -66,6 +94,8 @@ DATASET_PATH       = REPO_ROOT / "dataset" / "dataset.json"
 # Maps each style_label to the fields needed by both the ranker (style_profile)
 # and the procurement agent (stylist_output).  query_terms are injected on top
 # at call time so keyword matching targets the exact original query.
+
+#Essentially the hardcoded stylist outputs so bypass the stylist agent for procurement and ranker evals.
 
 STYLE_DEFINITIONS: Dict[str, Dict[str, Any]] = {
     "dark_academia": {
@@ -312,82 +342,36 @@ STYLE_DEFINITIONS: Dict[str, Dict[str, Any]] = {
 }
 
 
-# ── Dataset-derived product terms (Fix 3) ────────────────────────────────────
-# Loaded once and merged into every style_profile so keyword matching covers
-# product-category nouns ("blazer", "satchel", "credenza") that STYLE_DEFINITIONS
-# style_keywords currently miss.
-
-_STYLE_PRODUCT_TERMS: Dict[str, List[str]] = {}
-
-
-def _load_product_terms() -> Dict[str, List[str]]:
-    """Extract per-style product_terms and style_terms from dataset.json."""
-    global _STYLE_PRODUCT_TERMS
-    if _STYLE_PRODUCT_TERMS:
-        return _STYLE_PRODUCT_TERMS
-    try:
-        with open(DATASET_PATH) as f:
-            products = json.load(f)
-        per_style: Dict[str, set] = {}
-        for p in products:
-            style = p.get("style_label", "")
-            if not style:
-                continue
-            bucket = per_style.setdefault(style, set())
-            for t in p.get("product_terms", []):
-                bucket.add(t.lower())
-            for t in p.get("style_terms", []):
-                bucket.add(t.lower())
-        _STYLE_PRODUCT_TERMS = {s: sorted(t) for s, t in per_style.items()}
-    except Exception:
-        pass
-    return _STYLE_PRODUCT_TERMS
-
-
 # ── Mock builders ─────────────────────────────────────────────────────────────
 
-def make_style_profile(style_label: str, query_terms: List[str], query: str = "") -> Dict[str, Any]:
+def make_style_profile(style_label: str, query: str = "") -> Dict[str, Any]:
     """
-    Build a ranker-compatible style_profile dict.
-
-    The query_terms are merged into style_keywords so the ranker's
-    keyword_overlap_score rewards products that match the original search query.
-    Product-category terms from dataset.json are also merged in (Fix 3) so
-    nouns like "satchel", "credenza", and "sneaker" score correctly.
-
-    style_summary is left empty intentionally: ranker_critic._compute_scores
-    extends the keyword pool with every word in the summary, which dilutes
-    txt_sim when using a generic mock summary.  In production the stylist
-    generates a tight, image-specific summary — the eval uses style_keywords
-    + injected query_terms instead.
+    Build a ranker-compatible style_profile dict using only style-level signals.
+    query_terms are intentionally excluded so the ranker scores on aesthetic fit,
+    not on the original GT query.
     """
     defn = STYLE_DEFINITIONS.get(style_label, {})
-    base_kw = list(defn.get("style_keywords", []))
-    product_terms = _load_product_terms().get(style_label, [])
-    merged_kw = list(dict.fromkeys(base_kw + product_terms + [t.lower() for t in query_terms]))
     return {
         "board_id":      f"{style_label}__{query.replace(' ', '_')}",
         "style_summary": "",
-        "style_keywords": merged_kw,
+        "style_keywords": list(defn.get("style_keywords", [])),
         "style_elements": defn.get("style_elements", []),
         "color_palette": defn.get("color_palette", {"dominant": [], "accent": [], "avoid": []}),
         "materials":     defn.get("materials", {"preferred": [], "avoid": []}),
         "constraints":   defn.get("constraints", {"must_avoid": []}),
-        "board_embedding": [],  # no image embeddings → text-only scoring path
+        "board_embedding": [],
     }
 
 
-def make_stylist_output(style_label: str, query_terms: List[str]) -> Dict[str, Any]:
+def make_stylist_output(style_label: str) -> Dict[str, Any]:
     """
-    Build a procurement-compatible stylist_output dict.
-
-    The query terms are embedded in style_profile so the LLM is nudged toward
-    generating queries that match the original search terms.
+    Build a procurement-compatible stylist_output dict using only style-level
+    signals. query_terms are excluded so the LLM must infer what to search from
+    the style description alone, matching real production conditions.
     """
     defn = STYLE_DEFINITIONS.get(style_label, {})
-    query_hint = " ".join(query_terms)
     return {
-        "style_profile": f"{defn.get('style_summary', style_label)}  Key search terms: {query_hint}.",
+        "style_profile": defn.get("style_summary", style_label),
         "aesthetic":     defn.get("aesthetic", [style_label]),
         "colors":        defn.get("colors", []),
         "materials":     defn.get("proc_materials", []),
@@ -453,7 +437,6 @@ def eval_ranker_full_pool(
     """
     style_label = entry["style_label"]
     query       = entry["query"]
-    query_terms = entry["query_terms"]
     gt_products = entry["ground_truth"]
 
     gt_names = {p["product_name"].lower() for p in gt_products}
@@ -463,7 +446,7 @@ def eval_ranker_full_pool(
         if c["product_name"].lower() in gt_names
     }
 
-    style_profile = make_style_profile(style_label, query_terms, query)
+    style_profile = make_style_profile(style_label, query)
     state = {
         "style_profile":      style_profile,
         "candidate_products": all_candidates,
@@ -506,10 +489,9 @@ def eval_ranker_gt_only(entry: Dict[str, Any]) -> Dict[str, Any]:
     """
     style_label = entry["style_label"]
     query       = entry["query"]
-    query_terms = entry["query_terms"]
     gt_products = entry["ground_truth"]
 
-    style_profile = make_style_profile(style_label, query_terms, query)
+    style_profile = make_style_profile(style_label, query)
     candidates    = [_format_product(p, f"gt_{i}") for i, p in enumerate(gt_products)]
 
     state = {
@@ -562,7 +544,6 @@ def eval_full_pipeline(entry: Dict[str, Any]) -> Dict[str, Any]:
 
     style_label = entry["style_label"]
     query       = entry["query"]
-    query_terms = entry["query_terms"]
     gt_products = entry["ground_truth"]
 
     _original_build = procurement.build_queries
@@ -572,12 +553,12 @@ def eval_full_pipeline(entry: Dict[str, Any]) -> Dict[str, Any]:
 
     procurement.build_queries = _fixed_build
     try:
-        proc_raw  = procurement.run({"stylist_output": make_stylist_output(style_label, query_terms)})
+        proc_raw  = procurement.run({"stylist_output": make_stylist_output(style_label)})
         proc_data = json.loads(proc_raw)
     finally:
         procurement.build_queries = _original_build
 
-    style_profile = make_style_profile(style_label, query_terms, query)
+    style_profile = make_style_profile(style_label, query)
     state = {
         "style_profile":        style_profile,
         "procurement_products": proc_data["procurement_products"],
@@ -632,10 +613,9 @@ def eval_dataset_search(
 
     style_label = entry["style_label"]
     query       = entry["query"]
-    query_terms = entry["query_terms"]
     gt_products = entry["ground_truth"]
 
-    stylist_dict = make_stylist_output(style_label, query_terms)
+    stylist_dict = make_stylist_output(style_label)
     style = StylistOutput(
         style_profile=stylist_dict["style_profile"],
         aesthetic=stylist_dict["aesthetic"],
@@ -681,7 +661,7 @@ def eval_dataset_search(
     gt_names = {p["product_name"].lower() for p in gt_products}
     gt_ids   = {c["product_id"] for c in candidates if c["product_name"].lower() in gt_names}
 
-    style_profile = make_style_profile(style_label, query_terms, query)
+    style_profile = make_style_profile(style_label, query)
     state = {
         "style_profile":      style_profile,
         "candidate_products": candidates,
@@ -712,6 +692,143 @@ def eval_dataset_search(
     }
 
 
+# ── Dataset-search + feedback-loop evaluation ────────────────────────────────
+
+def eval_dataset_search_with_feedback(
+    entry: Dict[str, Any],
+    all_candidates: List[Dict[str, Any]],
+    num_queries: int = 3,
+    top_k_per_query: int = 10,
+) -> Dict[str, Any]:
+    """
+    Two-pass dataset-search eval that exercises the critic→procurement feedback loop.
+
+    Pass 1 is identical to eval_dataset_search.  If the ranker emits critic_feedback
+    (i.e. _generate_critic_feedback fired on the 4 signals), Pass 2 re-runs
+    procurement with that feedback injected into the query-generation prompt and
+    compares recall.  Skips Pass 2 when Pass 1 results are already satisfactory.
+
+    Requires OLLAMA_MODEL env var (local Qwen) or HF_TOKEN (HF Inference API).
+    """
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(REPO_ROOT / ".env")
+    except Exception:
+        pass
+
+    from agents.procurement import StylistOutput, build_queries
+
+    style_label = entry["style_label"]
+    query       = entry["query"]
+    gt_products = entry["ground_truth"]
+
+    stylist_dict = make_stylist_output(style_label)
+    style = StylistOutput(
+        style_profile=stylist_dict["style_profile"],
+        aesthetic=stylist_dict["aesthetic"],
+        colors=stylist_dict["colors"],
+        materials=stylist_dict["materials"],
+    )
+
+    def _run_pass(critic_feedback: Optional[str], pass_label: str) -> Dict[str, Any]:
+        print(f"\n[dataset-search+feedback] {pass_label} — '{style_label}' / '{query}'")
+        if critic_feedback:
+            print(f"[dataset-search+feedback] critic_feedback → procurement:\n  {critic_feedback}")
+
+        generated_queries = build_queries(
+            style, num_queries=num_queries, critic_feedback=critic_feedback
+        )
+        print(f"[dataset-search+feedback] LLM queries: {generated_queries}")
+
+        seen_ids: set = set()
+        candidates: List[Dict[str, Any]] = []
+        retrieval_log: List[Dict[str, Any]] = []
+
+        for q in generated_queries:
+            hits = _search_dataset(q, all_candidates, top_k=top_k_per_query)
+            new_hits = [h for h in hits if h["product_id"] not in seen_ids]
+            for h in new_hits:
+                seen_ids.add(h["product_id"])
+                candidates.append(h)
+            retrieval_log.append({"query": q, "hits": len(hits), "new": len(new_hits)})
+            print(f"[dataset-search+feedback]   '{q}' → {len(hits)} hits, {len(new_hits)} new")
+
+        print(f"[dataset-search+feedback] Total candidates for ranker: {len(candidates)}")
+
+        gt_names = {p["product_name"].lower() for p in gt_products}
+        gt_ids   = {c["product_id"] for c in candidates if c["product_name"].lower() in gt_names}
+
+        if not candidates:
+            return {
+                "generated_queries": generated_queries,
+                "retrieval_log":     retrieval_log,
+                "accepted_gt":       0,
+                "total_retrieved":   0,
+                "total_accepted":    0,
+                "recall":            0.0,
+                "gt_ranks":          [],
+                "ranked_products":   [],
+                "rejected":          [],
+                "critic_feedback":   None,
+            }
+
+        style_profile = make_style_profile(style_label, query)
+        state = {
+            "style_profile":      style_profile,
+            "candidate_products": candidates,
+        }
+        result   = ranker_run(state)
+        rc_out   = result.get("ranker_critic_output", {})
+        accepted = rc_out.get("accepted_products", [])
+        acc_ids  = {p["product_id"] for p in accepted}
+
+        accepted_gt = acc_ids & gt_ids
+        recall      = len(accepted_gt) / len(gt_products) if gt_products else 0.0
+        rank_map    = {p["product_id"]: p["rank"] for p in accepted}
+        gt_ranks    = sorted([rank_map[pid] for pid in accepted_gt if pid in rank_map])
+
+        return {
+            "generated_queries": generated_queries,
+            "retrieval_log":     retrieval_log,
+            "accepted_gt":       len(accepted_gt),
+            "total_retrieved":   len(candidates),
+            "total_accepted":    len(accepted),
+            "recall":            round(recall, 4),
+            "gt_ranks":          gt_ranks,
+            "ranked_products":   result.get("ranked_products", []),
+            "rejected":          result.get("rejected_products", []),
+            "critic_feedback":   result.get("critic_feedback"),
+        }
+
+    pass1    = _run_pass(critic_feedback=None, pass_label="Pass 1 (initial)")
+    feedback = pass1.get("critic_feedback")
+
+    pass2: Optional[Dict[str, Any]] = None
+    if feedback:
+        print(f"\n[dataset-search+feedback] Critic fired → running Pass 2 with feedback...")
+        pass2 = _run_pass(critic_feedback=feedback, pass_label="Pass 2 (with feedback)")
+    else:
+        print(f"\n[dataset-search+feedback] No feedback generated — Pass 1 satisfactory, skipping Pass 2.")
+
+    best_recall = max(pass1["recall"], (pass2 or {}).get("recall", 0.0))
+    final_pass  = pass2 if pass2 is not None else pass1
+
+    return {
+        "style_label":     style_label,
+        "query":           query,
+        "total_gt":        len(gt_products),
+        "pass1":           pass1,
+        "pass2":           pass2,
+        "feedback_fired":  feedback is not None,
+        # Top-level fields used by _aggregate and _print_entry_result
+        "recall":          best_recall,
+        "accepted_gt":     final_pass["accepted_gt"],
+        "gt_ranks":        final_pass["gt_ranks"],
+        "ranked_products": final_pass["ranked_products"],
+        "rejected":        final_pass["rejected"],
+    }
+
+
 # ── Reporting helpers ─────────────────────────────────────────────────────────
 
 def _print_entry_result(r: Dict[str, Any], mode: str) -> None:
@@ -726,6 +843,28 @@ def _print_entry_result(r: Dict[str, Any], mode: str) -> None:
         print(f"  retrieved={r['total_retrieved']}  accepted={r['total_accepted']}"
               f"  accepted_gt={r['accepted_gt']}/{r['total_gt']}"
               f"  recall={r['recall']:.2f}  gt_ranks={r['gt_ranks']}")
+    elif mode == "dataset-search+feedback":
+        p1 = r.get("pass1", {})
+        p2 = r.get("pass2")
+        print(f"  Pass 1 queries: {p1.get('generated_queries', [])}")
+        for log in p1.get("retrieval_log", []):
+            print(f"    '{log['query']}' → {log['hits']} hits, {log['new']} new")
+        print(f"  Pass 1: retrieved={p1.get('total_retrieved')}  accepted={p1.get('total_accepted')}"
+              f"  accepted_gt={p1.get('accepted_gt')}/{r['total_gt']}"
+              f"  recall={p1.get('recall', 0):.2f}  gt_ranks={p1.get('gt_ranks', [])}")
+        if r.get("feedback_fired"):
+            print(f"  Feedback → procurement: {p1.get('critic_feedback', '')}")
+            if p2:
+                print(f"  Pass 2 queries: {p2.get('generated_queries', [])}")
+                for log in p2.get("retrieval_log", []):
+                    print(f"    '{log['query']}' → {log['hits']} hits, {log['new']} new")
+                print(f"  Pass 2: retrieved={p2.get('total_retrieved')}  accepted={p2.get('total_accepted')}"
+                      f"  accepted_gt={p2.get('accepted_gt')}/{r['total_gt']}"
+                      f"  recall={p2.get('recall', 0):.2f}  gt_ranks={p2.get('gt_ranks', [])}")
+                delta = (p2.get("recall") or 0.0) - (p1.get("recall") or 0.0)
+                print(f"  Recall delta (pass2 − pass1): {delta:+.2f}")
+        else:
+            print(f"  No feedback generated — pass 1 results satisfactory.")
     elif mode == "ranker (full pool)":
         print(f"  pool={r['pool_size']}  accepted_gt={r['accepted_gt']}/{r['total_gt']}"
               f"  total_accepted={r['total_accepted']}  recall={r['recall']:.2f}"
@@ -770,63 +909,34 @@ def _print_summary(agg: Dict[str, Any]) -> None:
     print("=" * 60)
 
 
-# ── Eval log ─────────────────────────────────────────────────────────────────
-
-LOG_PATH = REPO_ROOT / "results" / "eval_log.md"
-
-
-def _build_log_section(agg: Dict[str, Any], mode: str, args: Any) -> str:
-    from datetime import datetime
-    ts         = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    style_note = f" | style: {args.style}" if getattr(args, "style", None) else ""
-    header = (
-        f"## {ts} — test_eval.py"
-        f" | mode: {mode}"
-        f"{style_note}"
-        f" | queries: {agg['total_queries']}"
-    )
-
-    summary_rows = [
-        "| Metric | Value |",
-        "|--------|-------|",
-        f"| Total queries | {agg['total_queries']} |",
-        f"| Perfect recall | {agg['perfect_recall']} / {agg['total_queries']} |",
-        f"| Mean recall | {agg['mean_recall']:.4f} |",
-    ]
-
-    style_rows = [
-        "",
-        "**Recall by style**",
-        "",
-        "| Style | Recall |",
-        "|-------|--------|",
-    ]
-    for style, rec in sorted(agg["style_recalls"].items()):
-        style_rows.append(f"| {style} | {rec:.4f} |")
-
-    lines = [header, ""] + summary_rows + style_rows + ["", "---", ""]
-    return "\n".join(lines)
-
-
-def _append_eval_log(agg: Dict[str, Any], mode: str, args: Any) -> None:
-    LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    section = _build_log_section(agg, mode, args)
-    with open(LOG_PATH, "a") as f:
-        f.write(section)
-    print(f"\nResults appended to {LOG_PATH}")
-
-
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="VisionCart eval harness")
     parser.add_argument(
+        "--split", choices=["test", "eval"], default=None,
+        help=(
+            "'test' → test.json (24 queries, 8 styles, pool restricted to those styles); "
+            "'eval' → Eval.json (6 queries, 2 held-out styles, full 120-product pool). "
+            "Omit to use the original eval_queries.json."
+        ),
+    )
+    parser.add_argument(
         "--gt-only", action="store_true",
-        help="Use only the 4 GT products as candidates (default: all 120 dataset products)",
+        help="Use only the 4 GT products as candidates (default: split's candidate pool)",
     )
     parser.add_argument(
         "--dataset-search", action="store_true",
-        help="LLM query generation + local dataset keyword search (requires HF_TOKEN only)",
+        help="LLM query generation + local dataset keyword search (requires OLLAMA_MODEL or HF_TOKEN)",
+    )
+    parser.add_argument(
+        "--feedback", action="store_true",
+        help=(
+            "With --dataset-search: run two-pass feedback loop — "
+            "Pass 1 generates queries, ranker emits critic_feedback, "
+            "Pass 2 re-runs procurement with that feedback and compares recall. "
+            "--split test uses test.json; --split eval uses Eval.json."
+        ),
     )
     parser.add_argument(
         "--full", action="store_true",
@@ -840,9 +950,25 @@ def main() -> None:
         "--out", metavar="PATH",
         help="Write per-query results to this JSON file",
     )
+    parser.add_argument(
+        "--output", action="store_true",
+        help=(
+            "After ranking, pipe results through the output agent (Qwen2.5-3B) "
+            "and print the human-readable summary. Works with any ranking mode. "
+            "Loads the model once and reuses it across all entries."
+        ),
+    )
     args = parser.parse_args()
 
-    with open(EVAL_QUERIES_PATH) as f:
+    # Select query file based on --split
+    if args.split == "test":
+        query_path = TEST_QUERIES_PATH
+    elif args.split == "eval":
+        query_path = EVAL_SPLIT_PATH
+    else:
+        query_path = EVAL_QUERIES_PATH
+
+    with open(query_path) as f:
         eval_queries: List[Dict[str, Any]] = json.load(f)
 
     if args.style:
@@ -851,18 +977,36 @@ def main() -> None:
             print(f"No entries found for style '{args.style}'.")
             sys.exit(1)
 
-    # Pre-load full dataset for modes that need it (full-pool, dataset-search)
+    # Pre-load candidate pool for modes that need it (full-pool, dataset-search).
+    # --split test: restrict pool to the 8 test styles so held-out eval-style
+    #   products never appear in test debug output (cross-split leakage prevention).
+    # --split eval / no split: use the full 120-product pool for a realistic task.
     all_candidates: Optional[List[Dict[str, Any]]] = None
     if not args.full and not args.gt_only:
         with open(DATASET_PATH) as f:
             raw = json.load(f)
+        if args.split == "test":
+            split_styles = {e["style_label"] for e in eval_queries}
+            raw = [p for p in raw if p.get("style_label") in split_styles]
         all_candidates = [_format_product(p, f"ds_{i}") for i, p in enumerate(raw)]
+        print(f"[pool] {len(all_candidates)} candidates"
+              + (f" ({args.split} styles only)" if args.split == "test" else " (full dataset)"))
+
+    # Lazy-load the output agent only if --output is requested (model load is slow).
+    output_run: Optional[Any] = None
+    if args.output:
+        from agents.output import run as _output_run
+        output_run = _output_run
+        print("[output] Output agent loaded (Qwen2.5-3B). Will run after each entry.\n")
 
     results = []
     for entry in eval_queries:
         if args.full:
             mode = "procurement+ranker"
             r = eval_full_pipeline(entry)
+        elif args.dataset_search and args.feedback:
+            mode = "dataset-search+feedback"
+            r = eval_dataset_search_with_feedback(entry, all_candidates)
         elif args.dataset_search:
             mode = "dataset-search"
             r = eval_dataset_search(entry, all_candidates)
@@ -874,11 +1018,25 @@ def main() -> None:
             r = eval_ranker_full_pool(entry, all_candidates)
 
         _print_entry_result(r, mode)
+
+        if output_run is not None:
+            defn = STYLE_DEFINITIONS.get(entry["style_label"], {})
+            style_profile_str = defn.get("style_summary", entry["style_label"])
+            out = output_run({
+                "style_profile":  style_profile_str,
+                "ranked_products": r.get("ranked_products", []),
+            })
+            print(f"\n{'='*60}")
+            print(f"OUTPUT AGENT — {entry['style_label']} / '{entry['query']}'")
+            print(f"{'='*60}")
+            print(out.get("output_text", "(no output)"))
+            print(f"{'='*60}\n")
+            r["output_text"] = out.get("output_text", "")
+
         results.append(r)
 
     agg = _aggregate(results)
     _print_summary(agg)
-    _append_eval_log(agg, mode, args)
 
     if args.out:
         out_path = Path(args.out)

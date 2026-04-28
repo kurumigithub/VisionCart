@@ -302,6 +302,98 @@ def _match_originals(
     return [by_id.get(a.product_id, {}) for a in accepted]
 
 
+# ── Critic feedback generator ────────────────────────────────────────
+
+# Product-type vocabulary used to detect category concentration in accepted results.
+_PRODUCT_TYPE_VOCAB = [
+    "chair", "sofa", "rug", "lamp", "pillow", "table", "desk", "shelf", "vase",
+    "candle", "frame", "mug", "bowl", "blanket", "throw", "mirror", "pendant",
+    "dress", "blazer", "jacket", "coat", "top", "pants", "skirt", "shirt",
+    "bag", "tote", "boot", "shoe", "sneaker", "sandal", "heel",
+    "watch", "necklace", "earring", "bracelet", "ring",
+]
+
+_MIN_ACCEPTED_FOR_HAPPY_PATH = 5
+_LOW_ACCEPTANCE_RATE = 0.30
+_CONCENTRATION_RATIO = 0.60
+
+
+def _generate_critic_feedback(
+    accepted: List[AcceptedProduct],
+    rejected: List[RejectedProduct],
+    accepted_originals: List[Dict[str, Any]],
+    style_profile: Dict[str, Any],
+) -> Optional[str]:
+    """
+    Build an actionable feedback string for the procurement agent's retry pass.
+    Returns None when results are good enough (high yield, broad coverage).
+    """
+    total = len(accepted) + len(rejected)
+    n_accepted = len(accepted)
+    lines: List[str] = [f"Retrieved {total} products, accepted {n_accepted}, rejected {len(rejected)}."]
+
+    # ── Zero accepted: hard signal ───────────────────────────────────────
+    if n_accepted == 0:
+        lines.append(
+            "No products passed style review. Queries returned completely off-style results. "
+            "Try different product categories with more specific aesthetic and material terms."
+        )
+        return " ".join(lines)
+
+    # ── Low acceptance rate: queries too broad ───────────────────────────
+    acceptance_rate = n_accepted / total if total > 0 else 0.0
+    if acceptance_rate < _LOW_ACCEPTANCE_RATE:
+        lines.append(
+            f"Acceptance rate was low ({acceptance_rate:.0%}). "
+            "Queries were too broad — use more specific aesthetic and material terms."
+        )
+
+    # ── Category concentration: all results in same product type ─────────
+    type_counts: Dict[str, int] = {}
+    for orig in accepted_originals:
+        name = (orig.get("product_name") or "").lower()
+        for pt in _PRODUCT_TYPE_VOCAB:
+            if pt in name:
+                type_counts[pt] = type_counts.get(pt, 0) + 1
+
+    if type_counts:
+        dominant = max(type_counts, key=type_counts.__getitem__)
+        if type_counts[dominant] >= n_accepted * _CONCENTRATION_RATIO and n_accepted >= 3:
+            others = [k for k in type_counts if k != dominant]
+            msg = (
+                f"Accepted products were concentrated in '{dominant}' "
+                f"({type_counts[dominant]}/{n_accepted}). "
+            )
+            msg += (
+                f"Some variety in: {', '.join(others)}. " if others else ""
+            )
+            msg += "Try queries for other product categories this style uses."
+            lines.append(msg)
+
+    # ── Style keyword gap: signals with no representation ────────────────
+    style_keywords = [k.lower() for k in style_profile.get("style_keywords", [])]
+    style_elements = [k.lower() for k in style_profile.get("style_elements", [])]
+    all_signals = style_keywords + style_elements
+
+    if all_signals:
+        accepted_text = " ".join(
+            f"{orig.get('product_name', '')} {' '.join(orig.get('tags', []))}"
+            for orig in accepted_originals
+        ).lower()
+        missing = [kw for kw in all_signals if kw not in accepted_text]
+        if missing:
+            lines.append(
+                f"Style signals absent from all accepted products: {', '.join(missing[:5])}. "
+                f"Try queries targeting: {', '.join(missing[:3])}."
+            )
+
+    # ── Suppress feedback on happy path ──────────────────────────────────
+    if acceptance_rate >= 0.5 and n_accepted >= _MIN_ACCEPTED_FOR_HAPPY_PATH and len(lines) == 1:
+        return None
+
+    return " ".join(lines)
+
+
 # ── Public API ───────────────────────────────────────────────────────
 
 def rank_and_critique(
@@ -414,8 +506,9 @@ def run(state: Dict[str, Any]) -> Dict[str, Any]:
     result = rank_and_critique(style_profile, candidate_products, config)
     output = result.to_dict()
 
+    accepted_originals = _match_originals(result.accepted_products, candidate_products)
     ranked_for_output: List[Dict[str, Any]] = []
-    for ap, orig in zip(result.accepted_products, _match_originals(result.accepted_products, candidate_products)):
+    for ap, orig in zip(result.accepted_products, accepted_originals):
         ranked_for_output.append({
             "name": orig.get("title") or orig.get("product_name", ""),
             "score": ap.final_score,
@@ -430,11 +523,21 @@ def run(state: Dict[str, Any]) -> Dict[str, Any]:
     print(f"\n[ranker_critic] ranked_products going to output: {len(ranked_for_output)}")
     for p in ranked_for_output:
         print(f"  {p['name']}  score={p['score']}  tags={p['tags']}")
-    critic_feedback = state.get("critic_feedback")
-    print(f"[ranker_critic] critic_feedback in state: {critic_feedback!r}  ← populate this for procurement retry loop")
+
+    critic_feedback = _generate_critic_feedback(
+        result.accepted_products,
+        result.rejected_products,
+        accepted_originals,
+        style_profile,
+    )
+    if critic_feedback:
+        print(f"[ranker_critic] critic_feedback → procurement:\n  {critic_feedback}")
+    else:
+        print("[ranker_critic] critic_feedback: None (results satisfactory)")
 
     return {
         "ranked_products": ranked_for_output,
         "rejected_products": output["rejected_products"],
         "ranker_critic_output": output,
+        "critic_feedback": critic_feedback,
     }

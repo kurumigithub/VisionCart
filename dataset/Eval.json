@@ -1,0 +1,444 @@
+[
+  {
+    "style_label": "quiet_luxury",
+    "query": "camel cashmere turtleneck sweater",
+    "query_terms": [
+      "camel",
+      "cashmere",
+      "turtleneck",
+      "sweater"
+    ],
+    "ground_truth": [
+      {
+        "product_name": "C by Bloomingdale's Women's Cashmere Turtleneck Sweater",
+        "image_url": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSdjsuUlfOHTWUbx2JkHOmExiLnSx9ksLIVq9itM9jeAEfkSuOZMN9cfAl5j_NlL7KzEZfFjqXvyousHG5ybKn18N5PsZzLS-cfgrolw8JnwxTgSLTvJeOAoQ",
+        "image_local": "data/images/quiet_luxury/01_c_by_bloomingdales_womens_cashmere_turtleneck_sweater.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=camel%20cashmere%20turtleneck%20sweater&prds=catalogid:1618446556995409788%2CheadlineOfferDocid:5579442258140457323%2CimageDocid:12410154257696700701%2Crds:PC_2949491288704585565%7CPROD_PC_2949491288704585565%2Cgpcid:2949491288704585565%2Cmid:576462833584874308%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "c by bloomingdale's women's cashmere turtleneck sweater"
+        ]
+      },
+      {
+        "product_name": "Ann Taylor Women's Studio Collection Cashmere Ribbed Turtleneck Sweater",
+        "image_url": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSOJoVoIqweLsP-diDl7eLS7zGNmt52hufLhvk7Kk3FwZYj9LUCzNL9V5y5IkG3DH-eyuyNtQgRxsSs9hdcLXgy4tGYNQhy06dPHiJTuObZJKTlmGSV3buA",
+        "image_local": "data/images/quiet_luxury/02_ann_taylor_womens_studio_collection_cashmere_ribbed_turtlene.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=camel%20cashmere%20turtleneck%20sweater&prds=catalogid:9567144837437972736%2CheadlineOfferDocid:7215915908409678248%2CimageDocid:8130242969327039713%2Crds:PC_14259931216947663625%7CPROD_PC_14259931216947663625%2Cgpcid:14259931216947663625%2Cmid:576462881113479889%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "ann taylor women's studio collection cashmere ribbed turtleneck sweater"
+        ]
+      },
+      {
+        "product_name": "Simply Vera Vera Wang Women's Luxe Cashmere Blend Mockneck Sweater",
+        "image_url": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQfWW8ov5myJvrUZx-FNzY8kdTHcSHkMLcBRwtCa0Kdmcl9j9_lUacY5khL-g6s9RtAYMdvFvFVwDtAs6wDGm0qkAqwJaWPjheDOJRVFdG3oIJFBhs11Z-D",
+        "image_local": "data/images/quiet_luxury/03_simply_vera_vera_wang_womens_luxe_cashmere_blend_mockneck_sw.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=camel%20cashmere%20turtleneck%20sweater&prds=catalogid:14315746296613782586%2CheadlineOfferDocid:5661576101345362455%2CimageDocid:17314450280621894936%2Crds:PC_17831228587426705049%7CPROD_PC_17831228587426705049%2Cgpcid:17831228587426705049%2Cmid:576462868338499552%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "simply vera vera wang women's luxe cashmere blend mockneck sweater"
+        ]
+      },
+      {
+        "product_name": "Brooks Brothers Women's Lightweight Modal Cashmere Turtleneck Sweater",
+        "image_url": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRwf2b2t6HF511rOfSBOkW3V6cLQNUwvivcyfc9znr7AJ_Zd_vfCuG4eJ-1oCgIqS_DVXGJJRUX8Cic4D95RO8JFAjbGImJ",
+        "image_local": "data/images/quiet_luxury/04_brooks_brothers_womens_lightweight_modal_cashmere_turtleneck.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=camel%20cashmere%20turtleneck%20sweater&prds=catalogid:13299555558692093812%2CheadlineOfferDocid:11507023594489410577%2CimageDocid:13269703218222137196%2Cgpcid:1284492643309079974%2Cmid:576462865769321608%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "brooks brothers women's lightweight modal cashmere turtleneck sweater"
+        ]
+      }
+    ]
+  },
+  {
+    "style_label": "quiet_luxury",
+    "query": "straight leg tailored trousers beige",
+    "query_terms": [
+      "straight",
+      "leg",
+      "tailored",
+      "trousers",
+      "beige"
+    ],
+    "ground_truth": [
+      {
+        "product_name": "Abercrombie & Fitch Women's Quinn Tailored Straight Pant",
+        "image_url": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRAHt0Q-ukmAGrNIpjjgqONJlkkdFlsUnrqQ6bLTIJgVwA0qeHVAJ4enF41h87XSsOEPoImpuhCQLX1csnJeWT-qMYO8QAqvXlgcpVE7_nV5VahXWRMB0KhDw",
+        "image_local": "data/images/quiet_luxury/01_abercrombie_fitch_womens_quinn_tailored_straight_pant.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=straight%20leg%20tailored%20trousers%20beige&prds=catalogid:7876900745682165778%2CheadlineOfferDocid:814247640649277125%2CimageDocid:13744857235469726985%2Crds:PC_10016176967067919281%7CPROD_PC_10016176967067919281%2Cgpcid:10016176967067919281%2Cmid:576462782845805507%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "abercrombie",
+          "fitch women's quinn tailored straight pant"
+        ]
+      },
+      {
+        "product_name": "H&M Ladies Slacks",
+        "image_url": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSJLB5V9vwaVZmFgJ2Ig7QjS-QuNYIlio8L1v9RY97MooifZ3m_062zSRhn4KkUInxGzVuktK6vGWBsK0UCSxl2KwVQ07Sna4NZN6MejqqLpZPci5HHSQaVjQ",
+        "image_local": "data/images/quiet_luxury/02_hm_ladies_slacks.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=straight%20leg%20tailored%20trousers%20beige&prds=catalogid:8000647351696464270%2CheadlineOfferDocid:3374237306136236068%2CimageDocid:15243872268247044877%2Crds:PC_9944266808860351565%7CPROD_PC_9944266808860351565%2Cgpcid:9944266808860351565%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "h",
+          "m ladies slacks"
+        ]
+      },
+      {
+        "product_name": "Women's Straight High-Rise Ponte Pant",
+        "image_url": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSIavpUWCrvCGmuly1ROZfhQm2FTteWihCLi6asTyWJ36uj0007f8wMY-KlQrDTCOBnmT0ZLQWKwZry7KTody1t3s2OtO3cWWXjwYLINWNr1loLMeGRGnkjHg",
+        "image_local": "data/images/quiet_luxury/03_womens_straight_high_rise_ponte_pant.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=straight%20leg%20tailored%20trousers%20beige&prds=catalogid:2034693352362752620%2CheadlineOfferDocid:14642195620069799876%2CimageDocid:15177615342737504037%2Crds:PC_8038616018934565826%7CPROD_PC_8038616018934565826%2Cgpcid:8038616018934565826%2Cmid:576462878900556099%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "women's straight high",
+          "rise ponte pant"
+        ]
+      },
+      {
+        "product_name": "Lauren Ralph Lauren Straight Leg Pants",
+        "image_url": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQrjXbAO3LkwoM656s8moxculRomwuhv5J3euFDb2zzob91VBx-dzKBmvp1CBrw9Avs0NLyLrDBq36ACB4gDNreiO3fM15-WaaTijHgcKMh0uZ1BypB8YWsJg",
+        "image_local": "data/images/quiet_luxury/04_lauren_ralph_lauren_straight_leg_pants.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=straight%20leg%20tailored%20trousers%20beige&prds=catalogid:15317683090884257749%2CheadlineOfferDocid:3403716978346132423%2CimageDocid:13510163719878043873%2Crds:PC_13996040763867762437%7CPROD_PC_13996040763867762437%2Cgpcid:13996040763867762437%2Cmid:576462841055093425%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "lauren ralph lauren straight leg pants"
+        ]
+      }
+    ]
+  },
+  {
+    "style_label": "quiet_luxury",
+    "query": "leather loafer minimal",
+    "query_terms": [
+      "leather",
+      "loafer",
+      "minimal"
+    ],
+    "ground_truth": [
+      {
+        "product_name": "Everlane Modern Leather Loafer",
+        "image_url": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcR2Kgqx24Pnbwu0eHHzE_x69OSLlu36Sg3cvqRPRnyo2SWCNjKwuzo6GtTjK9hPdyk6hA2bZWaytB6cvdrdnDP5lb2DVv6HB0TfAKXZ1kq363pE46pg_vL0aw",
+        "image_local": "data/images/quiet_luxury/01_everlane_modern_leather_loafer.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=leather%20loafer%20minimal&prds=catalogid:6379482708025106389%2CheadlineOfferDocid:15628208349467890100%2CimageDocid:1228116686564620274%2Cgpcid:1513239315684548713%2Cmid:576462886416242794%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "everlane modern leather loafer"
+        ]
+      },
+      {
+        "product_name": "Madewell The Bradley Lugsole Leather Loafer",
+        "image_url": "https://serpapi.com/searches/69deac8ea1de1254313af26e/images/76kjW70cd42_PxDv6fN3lf_qTE92pD7skm4wYuz9LXM.webp",
+        "image_local": "data/images/quiet_luxury/02_madewell_the_bradley_lugsole_leather_loafer.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=leather%20loafer%20minimal&prds=catalogid:11564077092522237021%2CheadlineOfferDocid:17000854857215506121%2CimageDocid:8298563993035026407%2Crds:PC_3096211893497279739%7CPROD_PC_3096211893497279739%2Cgpcid:129882259538750234%2Cmid:576462549101174402%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "madewell the bradley lugsole leather loafer"
+        ]
+      },
+      {
+        "product_name": "Premium Leather Minimal Loafers",
+        "image_url": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRafySdVRZ69muiUgfeWvk-g5RKIZrnW6l6Onoy44L-DxsC6Jc7bjUJ0qk3-8tYV8xS96hI3itnE5r4ZiYeI1q8mUehzD1RxXV8Yi-wlM8mWjj1ERrdCNxbEg",
+        "image_local": "data/images/quiet_luxury/03_premium_leather_minimal_loafers.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=leather%20loafer%20minimal&prds=catalogid:12888605714098524656%2CheadlineOfferDocid:15269121093404825610%2CimageDocid:13135179462831041631%2Crds:PC_2154137668816616789%7CPROD_PC_2154137668816616789%2Cgpcid:2154137668816616789%2Cmid:576462878430851836%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "premium leather minimal loafers"
+        ]
+      },
+      {
+        "product_name": "Margaux Women's Loafers The Marlowe Loafer",
+        "image_url": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcS9-LbRzM7uXs92WnuVTMsKIuQpkOlHhbwAz_QoZj-JLUy9qYPUJZQlkMNxE13WqymnuSbl7vZOoDnYx63jxPJlRLOA6Wbm72R4lYEqAwdmd4WUlbqEeDO_",
+        "image_local": "data/images/quiet_luxury/04_margaux_womens_loafers_the_marlowe_loafer.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=leather%20loafer%20minimal&prds=catalogid:1077252169229789815%2CheadlineOfferDocid:2374729418865463964%2CimageDocid:13109185377189706936%2Crds:PC_8051464973408873949%7CPROD_PC_8051464973408873949%2Cgpcid:8051464973408873949%2Cmid:576462849485010285%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "margaux women's loafers the marlowe loafer"
+        ]
+      }
+    ]
+  },
+  {
+    "style_label": "dark_moody_organic",
+    "query": "matte black concrete candle holder",
+    "query_terms": [
+      "matte",
+      "black",
+      "concrete",
+      "candle",
+      "holder"
+    ],
+    "ground_truth": [
+      {
+        "product_name": "Unique Bargains Cement Durable Stable Modern Candlestick Holders",
+        "image_url": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTwCkKjCVCIU344hN3-CD2Qgs0Bdy1fFgclkjic7QR8P9CcaT3-kcJOpyiKdocFBNsMPkPAXXtUVdFkKAlq1CNtZhZE2ie9",
+        "image_local": "data/images/dark_moody_organic/01_unique_bargains_cement_durable_stable_modern_candlestick_hol.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=matte%20black%20concrete%20candle%20holder&prds=catalogid:9919011049001209666%2CheadlineOfferDocid:1087926317250186122%2CimageDocid:14817712989562149071%2Cgpcid:3647319956792819276%2Cmid:576462887650134485%2Cpvt:hg&hl=en&gl=us&udm=28",
+        "tags": [
+          "unique bargains cement durable stable modern candlestick holders"
+        ]
+      },
+      {
+        "product_name": "Handmade Black Concrete Candle Jar: 200ml Eco-Friendly Vessel",
+        "image_url": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTfih84JE9YRJRrCpbG2dbimh_kOCo7wcmL88C7XGV4bRFOtnERDx9z1T9fsWaXkAM_djAx4VW9iQNI27Ghcc8-yRJxSEQOmX_tGB4TM_sFZ1OSCT2F49GPVw",
+        "image_local": "data/images/dark_moody_organic/02_handmade_black_concrete_candle_jar_200ml_eco_friendly_vessel.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=matte%20black%20concrete%20candle%20holder&prds=productid:17957119250557020796%2CheadlineOfferDocid:17957119250557020796%2CimageDocid:16710953777818085485%2Cpvt:hg&hl=en&gl=us&udm=28",
+        "tags": [
+          "handmade black concrete candle jar: 200ml eco",
+          "friendly vessel"
+        ]
+      },
+      {
+        "product_name": "Concrete Candle Holder Black",
+        "image_url": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQ1r0meBWrrDt3jfncS7qD5yt7WYjDmNqZaPQuvbdI54Uq4TXCvsNroflWhvtLafrekv_dkQCsCMiT3_SKt5HW3F91iUxdcp16Hd1bj7C1vvtXCRgWFJ79GeA",
+        "image_local": "data/images/dark_moody_organic/03_concrete_candle_holder_black.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=matte%20black%20concrete%20candle%20holder&prds=productid:3334485065627119443%2CheadlineOfferDocid:3334485065627119443%2CimageDocid:6647397415165608320%2Cpvt:hg&hl=en&gl=us&udm=28",
+        "tags": [
+          "concrete candle holder black"
+        ]
+      },
+      {
+        "product_name": "Cement Taper Candle Holders",
+        "image_url": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSlntrdu4wdssYGwdEPPsb94f37U0GQKcfzGoZX_Yaw9HehOrGDFnWs7gSq67LlWhf-Fpto9WmVZqAv2fJWArGNHPq5Gl1JxA",
+        "image_local": "data/images/dark_moody_organic/04_cement_taper_candle_holders.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=matte%20black%20concrete%20candle%20holder&prds=catalogid:14112198792287766520%2CheadlineOfferDocid:13709697640309639324%2CimageDocid:9525752938410567180%2Cgpcid:10725465610264524242%2Cmid:576462885104566027%2Cpvt:hg&hl=en&gl=us&udm=28",
+        "tags": [
+          "cement taper candle holders"
+        ]
+      }
+    ]
+  },
+  {
+    "style_label": "dark_moody_organic",
+    "query": "dark stoneware mug handmade",
+    "query_terms": [
+      "dark",
+      "stoneware",
+      "mug",
+      "handmade"
+    ],
+    "ground_truth": [
+      {
+        "product_name": "Clay in Motion Handmade Ceramic Mug",
+        "image_url": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQWJUGRmvVhY4q_QyHksJ-NEaLyZf4frQFkLi3PSYk5PYFD89ckqMBWKT-alr0FF81XSYs3xE73gBnGFna_xVkm-XajsaJuRpTxIihqaRbGfdBIj6izdXdC8zY",
+        "image_local": "data/images/dark_moody_organic/01_clay_in_motion_handmade_ceramic_mug.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=dark%20stoneware%20mug%20handmade&prds=catalogid:11574108653059568584%2CheadlineOfferDocid:143964476695223594%2CimageDocid:13008363099925922890%2Cgpcid:10359161357887482073%2Cmid:576462867338173001%2Cpvt:hg&hl=en&gl=us&udm=28",
+        "tags": [
+          "clay in motion handmade ceramic mug"
+        ]
+      },
+      {
+        "product_name": "Dark Raspberry Ripple Stoneware Pottery Mug",
+        "image_url": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRwHNlxXV8nEq1Wcr_KHt_W7w5vOefYYamn27fjpDfOP3ysh7Auha4h0OnF0ze-4Sg-2AMcMnoW5vGl07F976pYdLVzeIThqL4m0aGnBja4HUvjCw_5jr53Hw",
+        "image_local": "data/images/dark_moody_organic/02_dark_raspberry_ripple_stoneware_pottery_mug.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=dark%20stoneware%20mug%20handmade&prds=catalogid:8464179580892755239%2CheadlineOfferDocid:8696930483091315058%2CimageDocid:1959535702995825172%2Cgpcid:8562546279000454721%2Cpvt:hg&hl=en&gl=us&udm=28",
+        "tags": [
+          "dark raspberry ripple stoneware pottery mug"
+        ]
+      },
+      {
+        "product_name": "Handmade Stoneware Coffee Cup \"Pumpernickel\" with Gold Leaf",
+        "image_url": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQ68DiR5uJ7aPBpEPjnLwN3uPIHrBC8i-ccjleWJ8ZcUIXpSHKxuTQ2vPNIDXnbjg0QHybWn58U6KPkOcteoKIiziPGsyunJfThDpnn4ZpKfd7siRhShQtfDzGo",
+        "image_local": "data/images/dark_moody_organic/03_handmade_stoneware_coffee_cup_pumpernickel_with_gold_leaf.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=dark%20stoneware%20mug%20handmade&prds=catalogid:10384893344069109384%2CheadlineOfferDocid:1654368284278329254%2CimageDocid:17877014854073406703%2Cgpcid:4655704534913026741%2Cpvt:hg&hl=en&gl=us&udm=28",
+        "tags": [
+          "handmade stoneware coffee cup \"pumpernickel\" with gold leaf"
+        ]
+      },
+      {
+        "product_name": "Handmade Midnight Blue Stoneware Mug \u2013 Small Ceramic Coffee Cup",
+        "image_url": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSxCfazAlZdwi3-yuecScVTsGKfLZtH26kzWPvrWM039hle3_Ok-7tZtx9YMqSiZlD_foNXdMR2bBRX70DADpYBTpI9tbxz-w",
+        "image_local": "data/images/dark_moody_organic/04_handmade_midnight_blue_stoneware_mug_small_ceramic_coffee_cu.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=dark%20stoneware%20mug%20handmade&prds=productid:10594662422620676465%2CheadlineOfferDocid:10594662422620676465%2CimageDocid:17614814147437147856%2Cpvt:hg&hl=en&gl=us&udm=28",
+        "tags": [
+          "handmade midnight blue stoneware mug \u2013 small ceramic coffee cup"
+        ]
+      }
+    ]
+  },
+  {
+    "style_label": "dark_moody_organic",
+    "query": "black linen duvet cover",
+    "query_terms": [
+      "black",
+      "linen",
+      "duvet",
+      "cover"
+    ],
+    "ground_truth": [
+      {
+        "product_name": "Egyptian Linens Pre-Washed Linen Duvet Cover Set",
+        "image_url": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSvCVimRpbLTSWvhblD4TSsVSOdRxnqlJeQZPsUrGhMtTEVy_SWKDFJZmAzG49Q17LNhKqWviqrffeJX4OXsLoWd9FLQf8DKMgR5zilO9IK",
+        "image_local": "data/images/dark_moody_organic/01_egyptian_linens_pre_washed_linen_duvet_cover_set.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=black%20linen%20duvet%20cover&prds=catalogid:4149765641943993247%2CheadlineOfferDocid:12578357001811043338%2CimageDocid:15268917658126546555%2Crds:PC_12938138501963045199%7CPROD_PC_12938138501963045199%2Cgpcid:12938138501963045199%2Cmid:576462727502461797%2Cpvt:hg&hl=en&gl=us&udm=28",
+        "tags": [
+          "egyptian linens pre",
+          "washed linen duvet cover set"
+        ]
+      },
+      {
+        "product_name": "Quince European Linen Duvet Cover",
+        "image_url": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSgFJSF_GV28qXCG6b7xBzK10TOglqBlAHUm1yUBlb3NCBQAL_B-tj0dRwG9eGMzdAR2xIL79AGCxCunLYR7-ko8BDHIMYg_UW8DGUV4x3t",
+        "image_local": "data/images/dark_moody_organic/02_quince_european_linen_duvet_cover.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=black%20linen%20duvet%20cover&prds=catalogid:17327628047841786638%2CheadlineOfferDocid:6160888135560031415%2CimageDocid:2501296814403009421%2Crds:PC_13177034275022004051%7CPROD_PC_13177034275022004051%2Cgpcid:13177034275022004051%2Cmid:576462498294937200%2Cpvt:hg&hl=en&gl=us&udm=28",
+        "tags": [
+          "quince european linen duvet cover"
+        ]
+      },
+      {
+        "product_name": "Pottery Barn Belgian Flax Linen Duvet",
+        "image_url": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTWQieNUdxOrGs0VCWeMhGjslRSm2Sk1G8qJnWuT_KgWDh8Bt9NxUw1iYMWzpWXnYSLm8siicXBzknCFMu7gADzTadU4ovuLO-J4tlg0qU",
+        "image_local": "data/images/dark_moody_organic/03_pottery_barn_belgian_flax_linen_duvet.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=black%20linen%20duvet%20cover&prds=catalogid:4467753495290780934%2CheadlineOfferDocid:11014625782541720423%2CimageDocid:4693671574016220965%2Crds:PC_9844103924140885987%7CPROD_PC_9844103924140885987%2Cgpcid:9844103924140885987%2Cmid:576462473321159581%2Cpvt:hg&hl=en&gl=us&udm=28",
+        "tags": [
+          "pottery barn belgian flax linen duvet"
+        ]
+      },
+      {
+        "product_name": "Sheet Society Eve Linen Duvet Cover",
+        "image_url": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcS6zWLSVBSTwKIdGn-LOR5WTBsk0IvBvKfbjqSrj0gTGRC1aw6VEukSc1FpWgatCUj4KUDAuZTLrfwehu6jbCfUd9KlxqxkQnT-49vgDBlq",
+        "image_local": "data/images/dark_moody_organic/04_sheet_society_eve_linen_duvet_cover.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=black%20linen%20duvet%20cover&prds=catalogid:876500740575128548%2CheadlineOfferDocid:3782417934655272867%2CimageDocid:3635671912064463670%2Crds:PC_721835815884789945%7CPROD_PC_721835815884789945%2Cgpcid:721835815884789945%2Cmid:576462778096200826%2Cpvt:hg&hl=en&gl=us&udm=28",
+        "tags": [
+          "sheet society eve linen duvet cover"
+        ]
+      }
+    ]
+  },
+  {
+    "style_label": "vintage_bohemian",
+    "query": "fringe suede crossbody bag",
+    "query_terms": [
+      "fringe",
+      "suede",
+      "crossbody",
+      "bag"
+    ],
+    "ground_truth": [
+      {
+        "product_name": "Aerie Suede Fringe Crossbody Bag",
+        "image_url": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRiJIBlzLVIyocgM0m1i63YhbUeVgMByF1OpO00N1H8om5i-czl7Ug4T7QsHWJE_H7rNfaFcTE",
+        "image_local": "data/images/vintage_bohemian/01_aerie_suede_fringe_crossbody_bag.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=fringe%20suede%20crossbody%20bag&prds=catalogid:17586296074506282992%2CheadlineOfferDocid:7330123677642023810%2CimageDocid:6834969501340859202%2Cgpcid:16807862081093526139%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "aerie suede fringe crossbody bag"
+        ]
+      },
+      {
+        "product_name": "Idyllwind Women's Camarillo Metallic Fringe Suede Crossbody Bag",
+        "image_url": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTm7ftNx1cbSdTb1tHaq8RUKGfd5YniwDfHKltJPgK432lQ20rp84s1FO-5oHuj28nhr1Hcvl8",
+        "image_local": "data/images/vintage_bohemian/02_idyllwind_womens_camarillo_metallic_fringe_suede_crossbody_b.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=fringe%20suede%20crossbody%20bag&prds=catalogid:16824579207758316931%2CheadlineOfferDocid:1209932768883986110%2CimageDocid:6062613055887604299%2Cgpcid:1991977288633972230%2Cmid:576462800678055963%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "idyllwind women's camarillo metallic fringe suede crossbody bag"
+        ]
+      },
+      {
+        "product_name": "Steve Madden Women's Fringe Shoulder Bag",
+        "image_url": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTsNhunR6J4A6lSaq78fdZJtPSwLzaO8EcScL1tOyRTVrB3tXlZx9Rx3pbhbXqjRFyXBx2gwnOY",
+        "image_local": "data/images/vintage_bohemian/03_steve_madden_womens_fringe_shoulder_bag.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=fringe%20suede%20crossbody%20bag&prds=catalogid:6086544187836552098%2CheadlineOfferDocid:4625614697988046020%2CimageDocid:5321661268566435865%2Cgpcid:11717495238144995946%2Cmid:576462536573402172%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "steve madden women's fringe shoulder bag"
+        ]
+      },
+      {
+        "product_name": "Shyanne Belle Embroidered Fringe Suede Crossbody Bag",
+        "image_url": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcS5X8BsH7NZLdiiUz4ysXKrlt8mYLWs_b2mx2o9W1rjTqFqCvdvtIDCHzeCSK4",
+        "image_local": "data/images/vintage_bohemian/04_shyanne_belle_embroidered_fringe_suede_crossbody_bag.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=fringe%20suede%20crossbody%20bag&prds=catalogid:7484142202944358562%2CheadlineOfferDocid:4845828750133189913%2CimageDocid:16582550155933155004%2Cgpcid:5821104828597652112%2Cmid:576462841265127425%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "shyanne belle embroidered fringe suede crossbody bag"
+        ]
+      }
+    ]
+  },
+  {
+    "style_label": "vintage_bohemian",
+    "query": "crochet vest boho festival",
+    "query_terms": [
+      "crochet",
+      "vest",
+      "boho",
+      "festival"
+    ],
+    "ground_truth": [
+      {
+        "product_name": "CROCHET PDF PATTERN, The Fest Vest, Boho crochet,",
+        "image_url": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRkrurTfLWtpCa5uMMEd6ApgzhJ1PmoBDX3r7KFIzUugA_y8VZsLCCcVV_-qN6dhuhz8gxBsxM-5bpEQ87VMdfI5pK_n7zXK201qjbnPseZ",
+        "image_local": "data/images/vintage_bohemian/01_crochet_pdf_pattern_the_fest_vest_boho_crochet.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=crochet%20vest%20boho%20festival&prds=productid:10272560335074470223%2CheadlineOfferDocid:10272560335074470223%2CimageDocid:9878066269119541433%2Crds:LO_10272560335074470223%7CPROD_LO_10272560335074470223%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "crochet pdf pattern",
+          "the fest vest",
+          "boho crochet"
+        ]
+      },
+      {
+        "product_name": "Boho Crochet Vest",
+        "image_url": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSgBkuVdMfOrULcvFaSbrKx-2p9sZeXjE58V2gnFs6W7JxiSZx-QOBDP9Ki9H4JKVRtAITSXErvBElqRc6CEGHMSYplJSIrEicjiod6sf-UpPc82CqgPMirGQ",
+        "image_local": "data/images/vintage_bohemian/02_boho_crochet_vest.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=crochet%20vest%20boho%20festival&prds=catalogid:6554402812372799508%2CheadlineOfferDocid:9792747339415317513%2CimageDocid:16757294069166328153%2Cgpcid:2548337598359499205%2Cmid:576462883853222437%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "boho crochet vest"
+        ]
+      },
+      {
+        "product_name": "Missguided Bohemian Crochet Lace Vest Waistcoat",
+        "image_url": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRIEV_j4MFjWgzhKerPEY0DoiZlUuPkOaVoSCUJKNMY1KiRygJKWOK5Cyi0s3j_fr4NrvzbhuP9KUsdDJp3PSH94WiR7_Jm-iDHHuise4gkYSJ1BjU4c08QWw",
+        "image_local": "data/images/vintage_bohemian/03_missguided_bohemian_crochet_lace_vest_waistcoat.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=crochet%20vest%20boho%20festival&prds=catalogid:18145492503622383592%2CheadlineOfferDocid:14164131306844564987%2CimageDocid:1502852877204102209%2Cgpcid:16235917136501285729%2Cmid:576462862593242134%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "missguided bohemian crochet lace vest waistcoat"
+        ]
+      },
+      {
+        "product_name": "Hippie Crochet Vest With Fringe Festival Boho Chic Women Clothing",
+        "image_url": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTfqfHRLZ6YOfk8HvSUFPbqBsKo6LvqplaS6Pe80sgBhGQIWzTYXfaCYpoOvxC_gu-bSHejmF_9a3RR4ZzPmSXooaG8BX7RYA",
+        "image_local": "data/images/vintage_bohemian/04_hippie_crochet_vest_with_fringe_festival_boho_chic_women_clo.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=crochet%20vest%20boho%20festival&prds=productid:12774929551852979995%2CheadlineOfferDocid:12774929551852979995%2CimageDocid:4118655511731055903%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "hippie crochet vest with fringe festival boho chic women clothing"
+        ]
+      }
+    ]
+  },
+  {
+    "style_label": "vintage_bohemian",
+    "query": "embroidered wide leg pants rust",
+    "query_terms": [
+      "embroidered",
+      "wide",
+      "leg",
+      "pants",
+      "rust"
+    ],
+    "ground_truth": [
+      {
+        "product_name": "Sans Souci Embellished Ruffled Palazzo Pants",
+        "image_url": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcT59DjQ0Ga0lbWTXUZSPNrBCDT_KAtP6IsbBbDJLFoY9pQJDlYGnxRSg00oPWhcz5-QOIvE2D800PF5Z8_BUwl5n-ohDNViHVSAgxHH71K2",
+        "image_local": "data/images/vintage_bohemian/01_sans_souci_embellished_ruffled_palazzo_pants.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=embroidered%20wide%20leg%20pants%20rust&prds=catalogid:11485251585429705665%2CheadlineOfferDocid:14699136381432471069%2CimageDocid:11600590426319472683%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "sans souci embellished ruffled palazzo pants"
+        ]
+      },
+      {
+        "product_name": "PETAL & PUP Women's Petal and Pup Neveah Pant",
+        "image_url": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQIJmL_e62O4x77h3zePv-N2Nl4kri_3MV_r55sFBPnP1HQhbSNVh0FmTzu195KpiGRNy7XdnvGM7n9J1UxeJdpfpPU0I16VoObtmr7n7PKtXWwBoPZyrUbLw",
+        "image_local": "data/images/vintage_bohemian/02_petal_pup_womens_petal_and_pup_neveah_pant.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=embroidered%20wide%20leg%20pants%20rust&prds=catalogid:4227762152600050306%2CheadlineOfferDocid:9102314195748911861%2CimageDocid:11576363199453489774%2Crds:PC_16843930603531343880%7CPROD_PC_16843930603531343880%2Cgpcid:16843930603531343880%2Cmid:576462716902483204%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "petal",
+          "pup women's petal and pup neveah pant"
+        ]
+      },
+      {
+        "product_name": "Free People What You Know Embroidered Wide Leg Pants",
+        "image_url": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSEbqIKbo5d6geIPUA2x2e9Dgs34GxqGM4QrwvDrHVNDBQ2jeGu2ak81RRzJWxYx0JNV28r9dD2x-2qkzQFMexkqVm71G8F6Z3OeWiVYfv81a1WDox0sWDZ",
+        "image_local": "data/images/vintage_bohemian/03_free_people_what_you_know_embroidered_wide_leg_pants.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=embroidered%20wide%20leg%20pants%20rust&prds=catalogid:9550480165485998171%2CheadlineOfferDocid:8429900951251542094%2CimageDocid:1356313892208388773%2Crds:PC_7141647102838923864%7CPROD_PC_7141647102838923864%2Cgpcid:7141647102838923864%2Cmid:576462832978652984%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "free people what you know embroidered wide leg pants"
+        ]
+      },
+      {
+        "product_name": "Anthropologie Pants 12 Rust Color Emroidered Wide Leg",
+        "image_url": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQta_liY_rB4k804UnNGXU-g4relzOGHx1UpCu_fqcyfM8yy9LNeMPAocop-91TTcmCkmVFDZva00CF2Gqp1WJHGFvSYhLcgj8iblDMbnsg6H3ft2LlCMmDWQ",
+        "image_local": "data/images/vintage_bohemian/04_anthropologie_pants_12_rust_color_emroidered_wide_leg.jpg",
+        "link": "https://www.google.com/search?ibp=oshop&q=embroidered%20wide%20leg%20pants%20rust&prds=productid:18071705680044731304%2CheadlineOfferDocid:18071705680044731304%2CimageDocid:13252223052384047164%2Cpvt:a&hl=en&gl=us&udm=28",
+        "tags": [
+          "anthropologie pants 12 rust color emroidered wide leg"
+        ]
+      }
+    ]
+  }
+]
