@@ -210,11 +210,17 @@ def _critic_evaluate(
         return f"Rejected: multiple avoid-list violations ({', '.join(violations)})."
     if has_image_scores:
         final = w_img * image_sim + w_txt * text_sim + w_sem * semantic_score
+        effective_threshold = overall_reject_threshold
     else:
         non_img = w_txt + w_sem
         final = (w_txt / non_img) * text_sim + (w_sem / non_img) * semantic_score if non_img > 0 else 0.0
-    if final < overall_reject_threshold:
-        return f"Rejected: overall score too low ({final:.2f} < {overall_reject_threshold:.2f})."
+        # OVERALL_REJECT_THRESHOLD was calibrated assuming 50% image weight.
+        # In text-only mode the formula reweights to 0.6×txt + 0.4×sem, so
+        # a product with zero keyword overlap scores 0.6×0 + 0.4×0.5 = 0.20 —
+        # always below 0.35. Scale the threshold down by 0.7 to restore balance.
+        effective_threshold = overall_reject_threshold * 0.7
+    if final < effective_threshold:
+        return f"Rejected: overall score too low ({final:.2f} < {effective_threshold:.2f})."
     return None
 
 
