@@ -27,3 +27,4 @@ langchain
 langchain-openai
 pydantic>=2.0.0
 numpy
+chainlit>=1.0.0
