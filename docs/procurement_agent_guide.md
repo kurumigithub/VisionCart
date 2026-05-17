@@ -8,10 +8,10 @@
 The procurement agent is the second step in the VisionCart pipeline. Given the stylist agent's style profile, it determines which product categories suit the aesthetic, generates one search query per category via LLM, and fetches real purchasable products from Google Shopping.
 
 1. **Reads the style profile and optional critic feedback from state** — parses `stylist_output` into a typed `StylistOutput` object. If `critic_feedback` is present (set by the critic agent on a retry pass), it is forwarded to the query builder.
-2. **Generates queries with one LLM call** — sends the full style profile, colors, materials, aesthetics, budget, and any critic feedback to **Qwen2.5-7B-Instruct** via the HuggingFace Inference API. The model decides which product categories suit the aesthetic and returns one specific, context-aware query per category. If the API call fails for any reason, a `RuntimeError` is raised immediately — there is no silent fallback.
-3. **Fires all queries and collects per-query buckets** — each query fetches up to `num_products` results from SerpAPI. A global dedup set ensures no product appears in more than one bucket.
-4. **Round-robins across buckets to fill the output** — takes one result from each query bucket in turn so every category contributes evenly to the final list, regardless of which query had the most results.
-5. **Trims and shapes the output** — cuts the merged list to `num_products`, strips each item to only the fields downstream agents need (`product_name`, `image_url`, `price`, `link`, `tags`), and returns everything as a JSON string.
+2. **Generates queries with one LLM call** — sends the full style profile, colors, materials, aesthetics, budget, and any critic feedback to an LLM. The model decides which product categories suit the aesthetic and returns one specific, context-aware query per category.
+3. **Fires all queries and collects results** — each query fetches up to `results_per_query` results from SerpAPI. A global dedup set (keyed on product URL + normalized name) ensures no product appears more than once across queries.
+4. **Passes the full candidate pool to the ranker** — no trimming or round-robin is applied. The ranker and critic decide the final selection.
+5. **Returns a JSON string** — containing all candidates, the queries used, and the narrative style profile.
 
 ---
 
@@ -49,9 +49,7 @@ Integer, default `5`. Controls how many search queries (i.e. product categories)
 
 Integer, default `20`. Controls how many results to fetch from SerpAPI per query.
 
-Google Shopping already ranks its own results by relevance to the query — the first results are the strongest signal, and quality degrades beyond ~20–25. Fetching more than ~25 results brings in progressively generic junk that the ranker will score low anyway, at the cost of extra CLIP inference time. The default of 20 captures the relevant top of each query's result set without pulling in noise.
-
-Each SerpAPI request costs 1 credit regardless of `results_per_query`, so the only cost to increasing this is ranker latency.
+Google Shopping already ranks its own results by relevance to the query — the first results are the strongest signal, and quality degrades beyond ~20–25. Fetching more than ~25 results brings in progressively generic products that the ranker will score low anyway, at the cost of extra inference time. Each SerpAPI request costs 1 credit regardless of `results_per_query`.
 
 ### `critic_feedback` (optional)
 
@@ -59,21 +57,22 @@ String set by the critic agent on a retry pass. Describes which categories score
 
 Example value written by the critic:
 ```
-"Outdoor lighting results scored 0.28 avg — too industrial/modern in style.
-Garden decor results scored 0.31 avg — too generic, no aesthetic specificity.
-Planters scored 0.79 avg — keep the same approach for this category."
+"Retrieved 87 products, accepted 2, rejected 85.
+Acceptance rate was low (2%). Queries were too broad — use more specific aesthetic and material terms.
+Style signals absent from all accepted products: herringbone, tweed, scholarly.
+Try queries targeting: herringbone, tweed, scholarly."
 ```
 
 ---
 
 ## Output: Product Candidates
 
-The agent returns a JSON string with three top-level keys.
+The agent returns a **JSON string** (not a dict) with three top-level keys. The caller (`main-LC.py` or `procurement_node` in `main-LG.py`) is responsible for parsing it with `json.loads()`.
 
 ### `procurement_queries`
 **Type:** `list[str]`
 
-LLM-generated queries — one per category the model chose to explore. The model decides both which categories to cover and what angle to use for each query.
+LLM-generated queries — one per category the model chose to explore.
 
 First-pass example:
 ```json
@@ -102,47 +101,58 @@ Retry-pass example (after critic feedback on lighting and garden decor):
 ### `style_profile`
 **Type:** `str`
 
-The free-text style description passed through from the stylist agent for use by downstream agents (ranker, output).
+The free-text style description passed through from the stylist agent. Note: this is the raw narrative string, not the structured dict the ranker needs. The orchestrators (`main-LC.py`, `main-LG.py`) call `_style_profile_from_stylist()` to build the structured version separately.
 
 ---
 
 ### `procurement_products`
-**Type:** `list[object]`
+**Type:** `list[dict]`
 
-Deduplicated list of product candidates from SerpAPI, trimmed to `num_products`, merged via round-robin across query buckets.
+Deduplicated list of all product candidates from SerpAPI across all queries. Products are deduplicated by `(product_url, normalized_product_name)`.
 
 | Key | Type | Description |
 |-----|------|-------------|
 | `product_name` | `str` | Product title as returned by Google Shopping |
-| `image_url` | `str` | URL to the product thumbnail image — used by the ranker for CLIP embeddings |
+| `image_url` | `str` | URL to the product thumbnail image |
 | `price` | `float \| null` | Parsed numeric price; `null` if unparseable |
 | `link` | `str` | URL to the product page |
-| `tags` | `list[str]` | Keywords extracted from the product title — used by the ranker for text similarity |
+| `tags` | `list[str]` | Keywords extracted from the product title |
+
+Product IDs are **not** generated by this agent. The ranker generates fallback IDs (`p_{idx}`) for any product missing a `product_id`.
 
 ---
 
-## Query generation
+## Query generation and LLM backend
 
-`build_queries()` sends a single structured prompt to **Qwen/Qwen2.5-7B-Instruct** via the HuggingFace Inference API, containing the full style profile and any critic feedback. The model decides which product categories suit the aesthetic and generates one query per category.
+`build_queries()` selects an LLM backend based on environment variables:
 
-Example prompt (abbreviated):
+| Condition | Backend |
+|-----------|---------|
+| `OLLAMA_MODEL` env var is set | Local Ollama (model from `OLLAMA_MODEL`) |
+| `OLLAMA_MODEL` not set, `HF_TOKEN` not set | Local Ollama with default model (`qwen2.5:7b`) |
+| `OLLAMA_MODEL` not set, `HF_TOKEN` is set | HuggingFace Inference API (Qwen/Qwen2.5-7B-Instruct) |
+
+Override the Ollama host with `OLLAMA_HOST` (default: `http://localhost:11434`).
+
+The prompt includes the full style profile and any critic feedback:
+
 ```
 Given a style profile, decide which product categories a shopper would want to buy
 to achieve this aesthetic, then generate one search query per category.
 
-Style profile: Bright spring garden vibe: airy pastels, natural textures...
+Style profile: Bright spring garden vibe: airy pastels...
 Colors: sage green, cream, terracotta
 Materials: ceramic, rattan, wood
 Aesthetics: cottagecore, boho outdoor, spring patio, whimsical garden
 
-[on retry] The previous search had these issues:
-  Outdoor lighting results scored 0.28 avg — too industrial/modern in style.
+[on retry] The previous search was evaluated and had these issues — address them:
+  Acceptance rate was low (2%). Use more specific aesthetic and material terms.
   ...
 
 Generate exactly 5 queries. Return a JSON array of strings and nothing else.
 ```
 
-If `HF_TOKEN` is not set or the API call fails for any reason, the agent raises a `RuntimeError` — there is no silent fallback to a deterministic formula.
+If the API call fails (network error, bad response), a `RuntimeError` is raised — there is no silent fallback.
 
 ---
 
@@ -150,30 +160,28 @@ If `HF_TOKEN` is not set or the API call fails for any reason, the agent raises 
 
 ### Install dependencies
 
-All packages this agent needs are already in `requirements.txt`:
-
-```
-requests>=2.28.0           # HTTP calls to SerpAPI
-python-dotenv>=1.0.0       # loads .env into os.environ
-huggingface_hub>=0.23.0    # HuggingFace Inference API (Qwen2.5-7B-Instruct)
-```
-
-Install with:
 ```bash
 pip install -r requirements.txt
 ```
 
-### API keys
+Key packages:
 
-The agent reads two keys from the environment (or `.env` at the repo root):
+```
+requests>=2.28.0           # HTTP calls to SerpAPI and Ollama
+python-dotenv>=1.0.0       # loads .env into os.environ
+huggingface_hub>=0.23.0    # HuggingFace Inference API (optional)
+```
+
+### API keys
 
 ```bash
 # .env
 SERPAPI_API_KEY=your_serpapi_key_here
-HF_TOKEN=your_huggingface_token_here
+HF_TOKEN=your_huggingface_token_here   # optional if using Ollama
+OLLAMA_MODEL=qwen2.5:7b               # optional; triggers local Ollama backend
 ```
 
-Both keys are required. Get a free `HF_TOKEN` at [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) — create a token with **read** access, no paid plan needed.
+`HF_TOKEN` is optional — if `OLLAMA_MODEL` is set or `HF_TOKEN` is absent, the agent uses local Ollama for query generation. `SERPAPI_API_KEY` is always required.
 
 ---
 
@@ -184,21 +192,29 @@ cd VisionCart
 python tests/test_procurement_agent.py
 ```
 
-The mock stylist output should no longer include a `products` field — only `style_profile`, `aesthetic`, `colors`, `materials`, and optionally `budget_max`/`budget_currency`.
-
 To test the retry loop behavior, add `critic_feedback` to the mock state:
 
 ```python
+import json
+import src.agents.procurement as procurement
+
 state = {
-    "stylist_output": MOCK_STYLIST_OUTPUT,
+    "stylist_output": {
+        "style_profile": "Bright spring garden vibe: airy pastels, natural textures...",
+        "aesthetic": ["cottagecore", "boho outdoor"],
+        "colors": ["sage green", "cream", "terracotta"],
+        "materials": ["ceramic", "rattan", "wood"],
+    },
     "num_queries": 5,
     "results_per_query": 20,
     "critic_feedback": (
-        "Outdoor lighting results scored 0.28 avg — too industrial. "
-        "Garden decor results scored 0.31 avg — too generic."
+        "Acceptance rate was low (2%). Queries were too broad. "
+        "Style signals absent from all accepted products: herringbone, tweed."
     ),
 }
 result = json.loads(procurement.run(state))
+print(result["procurement_queries"])
+print(f"Total candidates: {len(result['procurement_products'])}")
 ```
 
 The queries returned on this pass should visibly differ from a first-pass run with no feedback.

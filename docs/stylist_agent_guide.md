@@ -7,7 +7,7 @@
 
 The stylist agent is the first step in the VisionCart pipeline. It receives a set of local image paths from a Pinterest board and converts them into a structured style persona — a machine-readable description of the user's aesthetic that every downstream agent uses.
 
-1. **Reads image paths from state** — loads up to 5 images as PIL objects. Images beyond 5 are dropped to manage GPU memory and token limits.
+1. **Reads image paths from state** — loads up to 5 images as PIL objects. Images beyond 5 are dropped to manage GPU memory and token limits. Images that fail to load are skipped with a warning rather than crashing.
 2. **Constructs a multimodal prompt** — attaches all images alongside a structured JSON schema instruction and sends them together to **Qwen2.5-VL-7B-Instruct**, a vision-language model running locally.
 3. **Parses the model response** — looks for a JSON block inside markdown fences first, then falls back to the last `{…}` pair in the output string. If both fail, returns an empty shell with a warning rather than crashing.
 4. **Writes the style persona to state** — the output dict is the contract that procurement and the ranker build on. The schema must be exact.
@@ -31,6 +31,8 @@ state["vision_board_paths"] = [
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
 | `vision_board_paths` | `list[str]` | Yes | Local file paths to board images. Only the first 5 are used. Must be `.jpg`, `.jpeg`, or `.png`. |
+
+If `vision_board_paths` is empty or missing, `run()` returns `{"stylist_output": {}}` immediately. An empty `stylist_output` causes procurement to generate generic queries and the ranker to have no style signal — check upstream if this happens.
 
 ---
 
@@ -56,7 +58,7 @@ A structured style persona extracted from the vision board. This is the primary 
 | Key | Type | Description |
 |-----|------|-------------|
 | `style_profile` | `str` | Narrative prose description of the overall vibe — used by procurement as the primary LLM prompt input and by output as the user-facing style summary |
-| `products` | `list[str]` | Specific item types the stylist identified in the images (e.g. `"planter"`, `"blazer"`) — informational for procurement, not directly used in query generation |
+| `products` | `list[str]` | Specific item types the stylist identified in the images — informational for procurement, not directly used in query generation |
 | `aesthetic` | `list[str]` | Mood and vibe labels — used by procurement for query context and by the ranker's semantic scoring |
 | `colors` | `list[str]` | 3–5 specific color names found in the images — used by procurement and the ranker's color palette matching |
 | `materials` | `list[str]` | 3–5 material types identified — used by procurement and the ranker's material preference rules |
@@ -67,7 +69,9 @@ A structured style persona extracted from the vision board. This is the primary 
 
 The stylist uses **Qwen/Qwen2.5-VL-7B-Instruct**, a multimodal vision-language model that processes both images and text in a single forward pass. It runs locally on GPU via HuggingFace Transformers.
 
-The model is loaded at module import time — not lazily inside `run()`. This means the first import of `stylist.py` downloads and loads a 7B-parameter model into GPU memory. On a T4 (16 GB VRAM), this takes ~2 minutes on first run and is cached afterward.
+The model is **lazy-loaded on the first call to `run()`** — not at module import time. The module-level `_model` and `_processor` variables are `None` until `_load_model()` is called internally on the first invocation. This means importing `stylist.py` on a non-GPU machine is safe; the GPU load only happens when `run()` is actually called.
+
+On a T4 (16 GB VRAM), the first load takes ~2 minutes and is cached in `~/.cache/huggingface/` afterward.
 
 The prompt enforces the exact JSON schema the downstream agents expect:
 
@@ -139,7 +143,7 @@ python-dotenv>=1.0.0           # loads .env
 HF_TOKEN=your_huggingface_token_here
 ```
 
-Get a free token at [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) — read access is sufficient. The token is used to authenticate the model download. After the first run the model is cached locally in `~/.cache/huggingface/`.
+Get a free token at [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) — read access is sufficient. The token is used to authenticate the model download. If `HF_TOKEN` is not set, a warning is printed but the download may still succeed if the model is already cached.
 
 ---
 
@@ -168,7 +172,6 @@ print("aesthetic:", output["aesthetic"])
 print("colors:", output["colors"])
 print("materials:", output["materials"])
 
-# Validate schema
 assert isinstance(output["style_profile"], str) and output["style_profile"] != "Unknown"
 assert isinstance(output["aesthetic"], list) and len(output["aesthetic"]) > 0
 assert isinstance(output["colors"], list) and len(output["colors"]) > 0
@@ -197,23 +200,21 @@ Cell 3: Authenticate with HuggingFace
 Cell 4: Mount Google Drive and navigate to project directory
 Cell 5: Install GPU-optimized dependencies
 Cell 6: Add src/ to sys.path for local imports
-Cell 7: Run full pipeline via %run src/main.py
+Cell 7: Run full pipeline via %run src/main-LC.py <board_url>
 ```
 
 ---
 
 ## Connecting to the pipeline
 
-The stylist is the entry point of the LangGraph graph. It reads `vision_board_paths` (written by the Pinterest crawler in `main.py`) and writes `stylist_output` for procurement:
+The stylist is the first agent called by both orchestrators. It reads `vision_board_paths` (written by the Pinterest crawler) and writes `stylist_output` for procurement:
 
 ```python
-# main.py (simplified)
-state["vision_board_paths"] = image_paths   # from crawler
-state.update(stylist.run(state))            # writes stylist_output
-procurement_raw = procurement.run(state)    # reads stylist_output
+# main-LC.py (simplified)
+state["vision_board_paths"] = image_paths       # from crawler
+state.update(stylist.run(state))                # writes stylist_output
+procurement_raw = procurement.run(state)        # reads stylist_output
+state["style_profile"] = _style_profile_from_stylist(state["stylist_output"])
 ```
 
-The `stylist_output` dict is also the source of truth for building the ranker's `style_profile` — see the known bug in `eval_tasks_2026-04-20.md` where `main.py` currently passes the wrong type to the ranker.
-
-
-> Cross-agent coordination items for this agent are tracked in [`docs/eval_tasks_2026-04-20.md`](eval_tasks_2026-04-20.md) under **Cross-Agent Coordination Tasks**.
+The `stylist_output` dict is also the source of truth for building the ranker's `style_profile` — `_style_profile_from_stylist()` in both orchestrators converts the narrative string + structured fields into the dict the ranker expects.
